@@ -27,3 +27,4 @@ dist-ssr
 #Other
 .env
 /backend/instance/*
+venv/
