@@ -1,0 +1,77 @@
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-family: "Inter", sans-serif;
+}
+
+.navbar-flashy a {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #007bff;
+  text-decoration: none;
+}
+
+.navbar-links {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.nav-btn {
+  background-color: #007bff;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.nav-btn:hover {
+  background-color: #0056b3;
+}
+
+.set-btn {
+  background-color: #007bff;
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  border-radius: 5px;
+  padding: 10px 20px;
+  transition: 0.25s;
+}
+
+.set-btn:hover {
+  box-shadow: 0px 2px 7px #ccc;
+}
+
+.user-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border-left: 1px solid #ddd;
+  padding-left: 1.5rem;
+}
+
+.username {
+  font-weight: 600;
+  color: #555;
+}
+
+.logout-btn {
+  background: none;
+  border: 1px solid #ff4d4d;
+  color: #ff4d4d;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.logout-btn:hover {
+  background-color: #ff4d4d;
+  color: white;
+}
