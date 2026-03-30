@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useAuth as getAuth } from "../contexts/AuthContext";
+import { getAuth } from "../contexts/AuthContext";
 import '../styles/Navbar.css';
 
 export default function Navbar() {
@@ -17,7 +17,9 @@ export default function Navbar() {
             <Link to="/dashboard" className="set-btn">My Sets</Link>
             <div className="user-section">
               <span className="username">{user.username}</span>
-              <button className="logout-btn" onClick={logout}>Logout</button>
+              <Link to="/">
+                <button className="logout-btn" onClick={logout}>Logout</button>
+              </Link>
             </div>
           </>
         ) : (

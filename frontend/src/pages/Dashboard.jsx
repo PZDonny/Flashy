@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
+import { getAuth } from "../contexts/AuthContext";
 import "../styles/Dashboard.css";
 
 export default function Dashboard() {
-  const { user, loading } = useAuth();
+  const { user, loading } = getAuth();
   const [sets, setSets] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (!loading && !user) {
+      navigate("/");
+    }
     const fetchSets = async () => {
       const token = localStorage.getItem("token");
       if (!token) return;
@@ -27,13 +30,10 @@ export default function Dashboard() {
     };
 
     if (user) fetchSets();
-  }, [user]);
+  }, [user, loading, navigate]);
 
   if (loading) return <p>Loading...</p>;
-  if (!user) {
-    navigate("/login");
-    return null;
-  }
+  if (!user) return null;
 
   const handleDelete = async (setId) => {
     try {
@@ -65,7 +65,7 @@ export default function Dashboard() {
             <div key={set.id} className="set">
               <div className="set-content">
                 <h3>{set.title}</h3>
-                <p>{set.description || "No description provided."}</p>
+                <p>{set.description || "No description"}</p>
               </div>
               <div className="set-actions">
                 <Link to={`/sets/${set.id}`} className="view-link">
