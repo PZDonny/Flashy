@@ -1,6 +1,7 @@
 import os
 import re
 import bcrypt
+import similarity
 from flask import Flask, request, jsonify
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, verify_jwt_in_request
 from flask_cors import CORS
@@ -214,7 +215,41 @@ def create_app():
             
         elif request.method == 'PUT':
             pass
-            
+
+
+    @app.route('/api/sets/<int:id>/quiz', methods=['POST'])
+    @jwt_required(optional=True)
+    def quiz(id):
+        pass
+
+    @app.route('/api/check_answer', methods=['POST'])
+    @jwt_required()
+    def check_answer():
+        data = request.get_json()
+        card_id = data.get('card_id')
+
+        card = Flashcard.query.filter_by(id=card_id).first()
+        if not card:
+            return jsonify({'msg': 'Card not found'}), 404
+
+        definition = card.definition
+        user_answer = data.get('answer')
+        is_exact = data.get('is_exact', False)
+
+        if is_exact:
+            result = definition.strip().lower() == user_answer.strip().lower()
+            score = 1.0 if result else 0.0
+        else:
+            result, score = similarity.is_similar(definition, user_answer)        
+        return jsonify({
+            'is_similar': result, 
+            'score': round(score*100, 2),
+            'correct_answer': definition
+        }), 200
+
+
+
+
     return app
 
 if __name__ == '__main__':

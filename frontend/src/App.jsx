@@ -7,6 +7,7 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import CreateSet from "./pages/CreateSet";
 import ViewSet from "./pages/ViewSet";
+import Quiz from "./pages/Quiz";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/create-set" element={<CreateSet />} />
           <Route path="/sets/:setId" element={<ViewSet />} />
+          <Route path="/sets/:setId/quiz" element={<Quiz />} />
         </Routes>
       </Router>
     </AuthProvider>
