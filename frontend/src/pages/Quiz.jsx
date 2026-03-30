@@ -75,11 +75,17 @@ export default function Quiz() {
       if (res.ok) {
         const data = await res.json();
         console.log(data);
-        setResult(
-          data.is_similar
-            ? `Correct! ${data.score}% Accuracy`
-            : `Incorrect. ${data.score}% Accuracy.`
-        );
+        let result;
+        if (data.result === "CORRECT") {
+          result = "Correct!";
+        } else if (data.result === "CLOSE") {
+          result = "Close! Almost there.";
+        }
+        else {
+          result = "Incorrect.";
+        }
+
+        setResult(`${result} ${data.score}% Accuracy`);
         setCorrectAnswer(data.correct_answer);
       }
     } finally {
@@ -126,18 +132,13 @@ export default function Quiz() {
 
       {result && (
         <div
-          className={`result-container ${
-            result.includes("Correct") ? "correct" : "incorrect"
-          }`}
+          className={`result-container ${result.includes("Correct") ? "correct" : result.includes("Incorrect") ? "incorrect" : "close"
+            }`}
         >
           <strong>{result}</strong>
           <hr></hr>
-          {result.includes("Incorrect") && (
-            <>
-                <span className="answer-feedback-label">YOUR ANSWER:</span>
-                <p>{userAnswer}</p>
-            </>
-          )}
+          <span className="answer-feedback-label">YOUR ANSWER:</span>
+          <p>{userAnswer}</p>
 
           <span className="answer-feedback-label">CORRECT ANSWER:</span>
           <p>{correctAnswer}</p>
@@ -168,10 +169,10 @@ export default function Quiz() {
             {isSubmitting
               ? "Checking..."
               : !result
-              ? "Check Answer"
-              : questionIndex === cardsetData.cards.length - 1
-              ? "Finish"
-              : "Next Question"}
+                ? "Check Answer"
+                : questionIndex === cardsetData.cards.length - 1
+                  ? "Finish"
+                  : "Next Question"}
           </button>
         )}
       </form>

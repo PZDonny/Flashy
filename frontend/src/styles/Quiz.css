@@ -115,6 +115,12 @@
   color: #065f46;
 }
 
+.result-container.close {
+  background-color: #faeaa9;
+  border: 1px solid #f59e0b;
+  color: #78350f;
+}
+
 .result-container.incorrect {
   background-color: #fef2f2;
   border: 1px solid #ef4444;

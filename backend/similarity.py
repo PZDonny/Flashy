@@ -1,7 +1,8 @@
 from sentence_transformers import SentenceTransformer, util
 from string import punctuation
 
-MIN_SIMILARITY_THRESHOLD = 0.75
+MIN_CORRECT_SIMILARITY_THRESHOLD = 0.75
+MIN_CLOSE_SIMILARITY_THRESHOLD = 0.60
 _model = None
 
 
@@ -24,7 +25,11 @@ def is_similar(term_definition, user_answer):
 
     embedding = get_model().encode([term_definition, user_answer], normalize_embeddings=True)
     similarity = util.cos_sim(embedding[0], embedding[1]).item()
-
-    result = similarity >= MIN_SIMILARITY_THRESHOLD
+    if similarity >= MIN_CORRECT_SIMILARITY_THRESHOLD:
+        result = 'CORRECT'
+    elif similarity >= MIN_CLOSE_SIMILARITY_THRESHOLD:
+        result = 'CLOSE'
+    else:
+        result = 'INCORRECT'
 
     return result, similarity

@@ -225,11 +225,14 @@ def create_app():
             for card_item in cards_data:
                 card_id = card_item.get('id')
                 
-                if card_id in existing_cards_dict: #Update Card
+                #Update card
+                if card_id in existing_cards_dict:
                     card = existing_cards_dict.pop(card_id) 
                     card.term = card_item.get('term', card.term)
                     card.definition = card_item.get('definition', card.definition)
-                else: #New Card
+                
+                #Add New Card
+                else:
                     new_card = Flashcard(
                         set_id=id,
                         term=card_item.get('term'),
@@ -269,7 +272,7 @@ def create_app():
         else:
             result, score = similarity.is_similar(definition, user_answer)        
         return jsonify({
-            'is_similar': result, 
+            'result': result, 
             'score': round(score*100, 2),
             'correct_answer': definition
         }), 200
