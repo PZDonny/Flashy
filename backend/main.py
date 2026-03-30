@@ -2,7 +2,7 @@ import os
 import re
 import bcrypt
 from flask import Flask, request, jsonify
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, verify_jwt_in_request
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
@@ -82,12 +82,12 @@ def create_app():
         password = data.get('password')
 
         if not re.match(r'^[a-zA-Z0-9_]+$', username):
-            return jsonify({'message': 'Username can only contain letters, numbers, and underscores'}), 400
+            return jsonify({'msg': 'Username can only contain letters, numbers, and underscores'}), 400
 
         if User.query.filter_by(username=username).first():
-            return jsonify({'message': 'Username already exists'}), 400
+            return jsonify({'msg': 'Username already exists'}), 400
         if User.query.filter_by(email=email).first():
-            return jsonify({'message': 'Email already exists'}), 400
+            return jsonify({'msg': 'Email already exists'}), 400
 
         try:
             password_hash = hash_password(password)
@@ -96,9 +96,9 @@ def create_app():
             db.session.commit()
         except IntegrityError:
             db.session.rollback()
-            return jsonify({'message': 'Failed to register user'}), 400
+            return jsonify({'msg': 'Failed to register user'}), 400
 
-        return jsonify({'message': 'User registered successfully'}), 201
+        return jsonify({'msg': 'User registered successfully'}), 201
 
     @app.route('/api/login', methods=['POST'])
     def login():
@@ -109,7 +109,7 @@ def create_app():
         user = User.query.filter_by(email=email).first()
         if user and check_password(password, user.password_hash):
             return jsonify({
-                'message': 'Login successful',
+                'msg': 'Login successful',
                 'user': {
                     "id": user.id,
                     "username": user.username,
@@ -118,7 +118,7 @@ def create_app():
                 'token': create_access_token(identity=str(user.id))
                 }), 200
         else:
-            return jsonify({'message': 'Invalid credentials'}), 401
+            return jsonify({'msg': 'Invalid credentials'}), 401
     
     @app.route('/api/me', methods=['GET'])
     @jwt_required()
@@ -127,7 +127,7 @@ def create_app():
         user = User.query.filter_by(id=current_user).first()
 
         if not user:
-            return jsonify({'message': 'User not found'}), 404
+            return jsonify({'msg': 'User not found'}), 404
         
         return jsonify({
             'id': user.id,
@@ -156,11 +156,11 @@ def create_app():
                     new_card = Flashcard(set_id=new_set.id, term=card['term'], definition=card['definition'])
                     db.session.add(new_card)
                 db.session.commit()
-                return jsonify({'message': 'Flashcard set created successfully'}), 201
+                return jsonify({'msg': 'Flashcard set created successfully'}), 201
             
             except IntegrityError as e:
                 db.session.rollback()
-                return jsonify({'message': 'Failed to create new flashcard set'}), 400
+                return jsonify({'msg': 'Failed to create new flashcard set'}), 400
     
         else:
             sets = FlashcardSet.query.filter_by(user_id=current_user).all()
@@ -171,32 +171,15 @@ def create_app():
             } for s in sets]), 200
     
     @app.route('/api/sets/<int:id>', methods=['GET', 'PUT', 'DELETE'])
-    @jwt_required()
+    @jwt_required(optional=True)
     def flashcard_set(id):
-        current_user = int(get_jwt_identity())
-        set = FlashcardSet.query.filter_by(id=id, user_id=current_user).first()
+        set = FlashcardSet.query.filter_by(id=id).first()
 
         if not set:
-            return jsonify({"message": "Set not found"}), 404
-
-        if request.method == 'DELETE':
-            try:
-                db.session.delete(set)
-                db.session.commit()
-                db.session.flush()
-                
-                cards = Flashcard.query.filter_by(set_id=id).all()
-                if cards:
-                    for card in cards:
-                        db.session.delete(card)
-                    db.session.commit()
-                return jsonify({'message': 'Set successfully deleted'}), 204
-            except :
-                pass
-            
-        elif request.method == 'PUT':
-            pass
-        else:
+            return jsonify({"msg": "Set not found"}), 404
+        
+        
+        if request.method == 'GET':
             cards = Flashcard.query.filter_by(set_id=id).all()
             return jsonify({
                 'title': set.title,
@@ -208,6 +191,30 @@ def create_app():
                 } for c in cards]
             }), 200
 
+        verify_jwt_in_request()
+        current_user = int(get_jwt_identity())
+        if set.user_id != current_user:
+            return jsonify({'msg': 'Invalid user'}), 401
+        
+
+        if request.method == 'DELETE':    
+            try:
+                db.session.delete(set)
+                db.session.commit()
+                db.session.flush()
+                
+                cards = Flashcard.query.filter_by(set_id=id).all()
+                if cards:
+                    for card in cards:
+                        db.session.delete(card)
+                    db.session.commit()
+                return jsonify({'msg': 'Set successfully deleted'}), 204
+            except :
+                pass
+            
+        elif request.method == 'PUT':
+            pass
+            
     return app
 
 if __name__ == '__main__':
