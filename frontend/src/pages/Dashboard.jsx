@@ -54,7 +54,7 @@ export default function Dashboard() {
     <div className="dashboard-container">
       <header className="dashboard-header">
         <h1>My Sets</h1>
-        <Link to="/create-set" className="create-btn">
+        <Link to="/edit-set" className="create-btn">
           <span>+</span> Create New Set
         </Link>
       </header>
@@ -86,7 +86,7 @@ export default function Dashboard() {
             <div className="empty-emoji">📚</div>
             <h2>You have no sets</h2>
             <p>Create your first flashcard set to get started!</p>
-            <Link to="/create-set" className="create-btn-large">
+            <Link to="/edit-set" className="create-btn-large">
               + Create Your First Set
             </Link>
           </div>

@@ -5,9 +5,9 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
-import CreateSet from "./pages/CreateSet";
 import ViewSet from "./pages/ViewSet";
 import Quiz from "./pages/Quiz";
+import SetEditor from "./pages/SetEditor";
 
 function App() {
   return (
@@ -19,7 +19,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/create-set" element={<CreateSet />} />
+          <Route path="/edit-set/:setId?" element={<SetEditor />} />
           <Route path="/sets/:setId" element={<ViewSet />} />
           <Route path="/sets/:setId/quiz" element={<Quiz />} />
         </Routes>

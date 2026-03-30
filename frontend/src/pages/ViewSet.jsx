@@ -24,7 +24,8 @@ export default function ViewSet() {
     fetchSetDetails();
   }, [setId]);
 
-  if (!cardsetData) return <div className="loading-state">Loading cards...</div>;
+  if (!cardsetData)
+    return <div className="loading-state">Loading cards...</div>;
 
   return (
     <div className="set-container">
@@ -35,11 +36,19 @@ export default function ViewSet() {
         <div className="header-info">
           <h1>{cardsetData.title}</h1>
           <p>{cardsetData.description || "No description."}</p>
-          <span className="card-count">{cardsetData.cards.length} FLASHCARDS</span>
+          <span className="card-count">
+            {cardsetData.cards.length} FLASHCARDS
+          </span>
         </div>
-        <Link to={`/sets/${setId}/quiz`} className="quiz-btn">
+
+        <div className="set-actions">
+          <Link to={`/edit-set/${setId}`} className="btn edit-btn">
+            Edit Set ✏️
+          </Link>
+          <Link to={`/sets/${setId}/quiz`} className="btn quiz-btn">
             Take a Quiz 📝
           </Link>
+        </div>
       </header>
 
       <div className="cards">

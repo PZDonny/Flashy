@@ -2,7 +2,7 @@
   max-width: 800px;
   margin: 2rem auto;
   padding: 0 1rem 5rem 1rem;
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
 }
 
 .create-set-header {
@@ -12,19 +12,39 @@
   margin-bottom: 2rem;
 }
 
-.save-btn-top {
-  background-color: #007bff;
-  color: white;
+.create-set-actions{
+  display: flex;
+  gap: 1rem;
+}
+
+.create-set-header .btn {
   border: none;
   padding: 0.6rem 1.5rem;
   border-radius: 6px;
   font-weight: 700;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: 0.2s;
 }
 
-.save-btn-top:hover {
+.create-set-actions .cancel-btn {
+  background-color: #d35d69;
+  color: white;
+  text-decoration: none;
+}
+
+.create-set-actions .cancel-btn:hover {
+  background-color: #a11e2b;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.create-set-actions .save-btn {
+  background-color: #007bff;
+  color: white;
+}
+
+.create-set-actions .save-btn:hover {
   background-color: #0056b3;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .meta-inputs {
@@ -67,7 +87,7 @@
   border-radius: 8px;
   padding: 1.5rem;
   margin-bottom: 2rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   border: 1px solid #eee;
 }
 

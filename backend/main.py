@@ -214,8 +214,35 @@ def create_app():
                 pass
             
         elif request.method == 'PUT':
-            pass
+            data = request.get_json()
+            set.title = data.get('title', set.title)
+            set.description = data.get('description', set.description)
 
+            cards_data = data.get('cards', [])
+            existing_cards = Flashcard.query.filter_by(set_id=id).all()
+            existing_cards_dict = {card.id: card for card in existing_cards}
+
+            for card_item in cards_data:
+                card_id = card_item.get('id')
+                
+                if card_id in existing_cards_dict: #Update Card
+                    card = existing_cards_dict.pop(card_id) 
+                    card.term = card_item.get('term', card.term)
+                    card.definition = card_item.get('definition', card.definition)
+                else: #New Card
+                    new_card = Flashcard(
+                        set_id=id,
+                        term=card_item.get('term'),
+                        definition=card_item.get('definition')
+                    )
+                    db.session.add(new_card)
+
+            #Cards that should no longer exist
+            for card_to_delete in existing_cards_dict.values():
+                db.session.delete(card_to_delete)
+
+            db.session.commit()
+            return jsonify({'msg': 'Set updated successfully'}), 200
 
     @app.route('/api/sets/<int:id>/quiz', methods=['POST'])
     @jwt_required(optional=True)
