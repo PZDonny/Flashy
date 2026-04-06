@@ -42,19 +42,24 @@
   margin-top: 0.5rem;
 }
 
-.exact-toggle {
+.exact-container {
   display: flex;
   justify-content: flex-end;
   margin-top: 1rem;
 }
 
-.exact-toggle label {
+.exact-container > span {
+  background-color: #7fd893;
+  color: white;
+  padding: 4px 10px;
   font-size: 0.85rem;
-  color: #666;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
+  font-weight: bold;
+  border-radius: 10px;
+  text-shadow: 0px 0px 5px black;
+}
+
+.exact-container.exact > span {
+  background-color: red;
 }
 
 .question-card {

@@ -38,6 +38,7 @@ class Flashcard(db.Model):
     set_id = db.Column(db.Integer, db.ForeignKey('flashcard_set.id'), nullable=False)
     term = db.Column(db.String(255), nullable=False)
     definition = db.Column(db.String(255), nullable=False)
+    is_exact = db.Column(db.Boolean, nullable=False, default=False)
 
 class Quiz(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -154,7 +155,7 @@ def create_app():
                 db.session.flush()
 
                 for card in cards:
-                    new_card = Flashcard(set_id=new_set.id, term=card['term'], definition=card['definition'])
+                    new_card = Flashcard(set_id=new_set.id, term=card['term'], definition=card['definition'], is_exact=card.get('isExact', False))
                     db.session.add(new_card)
                 db.session.commit()
                 return jsonify({'msg': 'Flashcard set created successfully'}), 201
@@ -188,7 +189,8 @@ def create_app():
                 'cards': [{
                     'id': c.id,
                     'term': c.term,
-                    'definition': c.definition
+                    'definition': c.definition,
+                    'is_exact': c.is_exact
                 } for c in cards]
             }), 200
 
@@ -225,18 +227,17 @@ def create_app():
             for card_item in cards_data:
                 card_id = card_item.get('id')
                 
-                #Update card
-                if card_id in existing_cards_dict:
+                if card_id in existing_cards_dict: #Update Card
                     card = existing_cards_dict.pop(card_id) 
                     card.term = card_item.get('term', card.term)
                     card.definition = card_item.get('definition', card.definition)
-                
-                #Add New Card
-                else:
+                    card.is_exact = card_item.get('isExact', card.is_exact)
+                else: #New Card
                     new_card = Flashcard(
                         set_id=id,
                         term=card_item.get('term'),
-                        definition=card_item.get('definition')
+                        definition=card_item.get('definition'),
+                        is_exact=card_item.get('isExact', False)
                     )
                     db.session.add(new_card)
 
@@ -264,17 +265,24 @@ def create_app():
 
         definition = card.definition
         user_answer = data.get('answer')
-        is_exact = data.get('is_exact', False)
 
-        if is_exact:
-            result = definition.strip().lower() == user_answer.strip().lower()
-            score = 1.0 if result else 0.0
+        if card.is_exact:
+            is_match = definition.strip().lower() == user_answer.strip().lower()
+            if is_match:
+                result = 'Correct'
+                result_class = 'correct'
+                score = 1.0
+            else:
+                result = 'Incorrect'
+                result_class = 'incorrect' 
+                score = -2.0
         else:
-            result, score = similarity.is_similar(definition, user_answer)        
+            result, score, result_class = similarity.is_similar(definition, user_answer)        
         return jsonify({
-            'result': result, 
-            'score': round(score*100, 2),
-            'correct_answer': definition
+            'result_label': result,
+            'score': score,
+            'correct_answer': definition,
+            'result_class': result_class
         }), 200
 
 

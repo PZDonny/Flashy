@@ -8,9 +8,9 @@ export default function Quiz() {
   const [cardsetData, setCardsetData] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [result, setResult] = useState(false);
+  const [resultClass, setResultClass] = useState("");
   const [correctAnswer, setCorrectAnswer] = useState("");
   const [userAnswer, setUserAnswer] = useState("");
-  const [isExact, setIsExact] = useState(false);
   const [quizCompleted, setQuizCompleted] = useState(false);
   const navigate = useNavigate();
 
@@ -68,25 +68,14 @@ export default function Quiz() {
         body: JSON.stringify({
           card_id: currentCard.id,
           answer: userAnswer,
-          is_exact: isExact,
         }),
       });
 
       if (res.ok) {
         const data = await res.json();
-        console.log(data);
-        let result;
-        if (data.result === "CORRECT") {
-          result = "Correct!";
-        } else if (data.result === "CLOSE") {
-          result = "Close! Almost there.";
-        }
-        else {
-          result = "Incorrect.";
-        }
-
-        setResult(`${result} ${data.score}% Accuracy`);
+        setResult(data.result_label);
         setCorrectAnswer(data.correct_answer);
+        setResultClass(data.result_class);
       }
     } finally {
       setIsSubmitting(false);
@@ -104,15 +93,18 @@ export default function Quiz() {
           Question {questionIndex + 1} of {cardsetData?.cards.length || 0}
         </h2>
 
-        <div className="exact-toggle">
-          <label>
-            <input
-              type="checkbox"
-              checked={isExact}
-              onChange={(e) => setIsExact(e.target.checked)}
-            />
-            Exact Answers
-          </label>
+        <div
+          className={`exact-container ${
+            cardsetData && cardsetData.cards[questionIndex].is_exact
+              ? "exact"
+              : ""
+          }`}
+        >
+          <span>
+            {cardsetData && cardsetData.cards[questionIndex].is_exact
+              ? "Exact Match"
+              : "Paraphrasable"}
+          </span>
         </div>
       </header>
 
@@ -132,8 +124,7 @@ export default function Quiz() {
 
       {result && (
         <div
-          className={`result-container ${result.includes("Correct") ? "correct" : result.includes("Incorrect") ? "incorrect" : "close"
-            }`}
+          className={`result-container ${resultClass}`}
         >
           <strong>{result}</strong>
           <hr></hr>
@@ -169,10 +160,10 @@ export default function Quiz() {
             {isSubmitting
               ? "Checking..."
               : !result
-                ? "Check Answer"
-                : questionIndex === cardsetData.cards.length - 1
-                  ? "Finish"
-                  : "Next Question"}
+              ? "Check Answer"
+              : questionIndex === cardsetData.cards.length - 1
+              ? "Finish"
+              : "Next Question"}
           </button>
         )}
       </form>

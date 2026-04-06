@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import "../styles/ViewSet.css";
+import SliderButton from "../components/SliderButton";
 
 export default function ViewSet() {
   const { setId } = useParams();
@@ -64,6 +65,16 @@ export default function ViewSet() {
             <div className="card-definition">
               <label>DEFINITION</label>
               <p>{card.definition}</p>
+            </div>
+
+            <div className="card-divider"></div>
+
+            <div className="card-exact">
+              <label>EXACT</label>
+              <SliderButton
+                initial={card.is_exact || false}
+                disabled={true}
+              ></SliderButton>
             </div>
           </div>
         ))}

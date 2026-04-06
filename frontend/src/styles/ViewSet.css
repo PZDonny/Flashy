@@ -115,8 +115,13 @@
   flex: 1;
 }
 
+.card-exact{
+  flex: 0;
+}
+
 .card-term label,
-.card-definition label {
+.card-definition label,
+.card-exact label{
   display: block;
   font-size: 0.7rem;
   font-weight: 800;

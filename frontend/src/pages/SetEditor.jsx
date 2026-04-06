@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import "../styles/SetEditor.css";
+import SliderButton from "../components/SliderButton";
 
 export default function SetEditor() {
   const navigate = useNavigate();
@@ -35,7 +36,7 @@ export default function SetEditor() {
   }, [isEditMode, setId]);
 
   const addCardRow = () => {
-    setCards([...cards, { term: "", definition: "" }]);
+    setCards([...cards, { term: "", definition: "", isExact: false }]);
   };
 
   const removeCardRow = (index) => {
@@ -95,7 +96,7 @@ export default function SetEditor() {
       </div>
 
       <form id="set-form" onSubmit={handleSubmit} className="create-set-form">
-        <div className="meta-inputs">
+        <div className="prop-inputs">
           <input
             className="title-input"
             placeholder='Enter a title for this set"'
@@ -147,6 +148,15 @@ export default function SetEditor() {
                     required
                   />
                   <label>DEFINITION</label>
+                </div>
+                <div className="input-field exact-toggle-input">
+                  <label>EXACT</label>
+                  <SliderButton
+                    initial={card.is_exact || false}
+                    toggleListener={(value) =>
+                      handleCardChange(index, "isExact", value)
+                    }
+                  ></SliderButton>
                 </div>
               </div>
             </div>

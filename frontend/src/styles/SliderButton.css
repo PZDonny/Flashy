@@ -1,0 +1,36 @@
+.slider-button-comp-container{
+    background-color: rgb(216, 216, 216);
+    width: 50px;
+    height: 30px;
+    border-radius: 30px;
+    padding: 2px;
+    transition-duration: 0.2s;
+}
+
+.slider-button-comp-container.disabled{
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.slider-button-comp-container.clickable:hover{
+    cursor: pointer;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.slider-button-comp-toggle{
+    background-color: white;
+    width: 50%;
+    height: 90%;
+    border-radius: 50%;
+    position: relative;
+    top: 2px;
+    transition-duration: 0.2s;
+}
+
+.slider-button-comp-container.active{
+    background-color: rgb(112, 226, 112)
+}
+
+.slider-button-comp-container.active .slider-button-comp-toggle{
+    transform: translateX(100%);
+}

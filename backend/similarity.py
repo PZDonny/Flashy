@@ -24,12 +24,15 @@ def is_similar(term_definition, user_answer):
     user_answer = _sanitize_text(user_answer)
 
     embedding = get_model().encode([term_definition, user_answer], normalize_embeddings=True)
-    similarity = util.cos_sim(embedding[0], embedding[1]).item()
-    if similarity >= MIN_CORRECT_SIMILARITY_THRESHOLD:
-        result = 'CORRECT'
-    elif similarity >= MIN_CLOSE_SIMILARITY_THRESHOLD:
-        result = 'CLOSE'
+    similarity_score = util.cos_sim(embedding[0], embedding[1]).item()
+    if similarity_score >= MIN_CORRECT_SIMILARITY_THRESHOLD:
+        result_label = f'Correct. {round(similarity_score*100, 2)}% Accuracy'
+        result_class = 'correct'
+    elif similarity_score >= MIN_CLOSE_SIMILARITY_THRESHOLD:
+        result_label = f'Close. {round(similarity_score*100, 2)}% Accuracy'
+        result_class = 'close'
     else:
-        result = 'INCORRECT'
+        result_label = f'Incorrect. {round(similarity_score*100, 2)}% Accuracy'
+        result_class = 'incorrect'
 
-    return result, similarity
+    return (result_label, similarity_score, result_class)
