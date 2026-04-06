@@ -102,7 +102,7 @@ export default function SetEditor() {
         id: card.id,
         term: card.term,
         definition: card.definition,
-        isExact: card.is_exact,
+        isExact: card.isExact,
       };
 
       if (card.image?.file) {
@@ -254,7 +254,7 @@ export default function SetEditor() {
                 <div className="input-field exact-toggle-input">
                   <label>EXACT</label>
                   <SliderButton
-                    initial={card.is_exact || false}
+                    initial={card.isExact || false}
                     toggleListener={(value) =>
                       handleCardChange(card.id, "isExact", value)
                     }

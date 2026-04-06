@@ -277,6 +277,7 @@ def create_app():
             existing_cards_dict = {card.id: card for card in existing_cards}
 
             for card_item in cards:
+                app.logger.info(f"Processing card item: {card_item}")
                 card_id = card_item.get('id')
 
                 if card_id in existing_cards_dict: #Update Card
