@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import "../styles/ViewSet.css";
 import SliderButton from "../components/SliderButton";
+import TermImage from "../components/TermImage";
 
 export default function ViewSet() {
   const { setId } = useParams();
@@ -55,6 +56,9 @@ export default function ViewSet() {
       <div className="cards">
         {cardsetData.cards.map((card) => (
           <div key={card.id} className="card">
+            {card.image_filename && (
+              <TermImage card={card} />
+            )}
             <div className="card-term">
               <label>TERM</label>
               <p>{card.term}</p>

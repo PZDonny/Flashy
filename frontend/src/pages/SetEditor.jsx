@@ -4,6 +4,10 @@ import "../styles/SetEditor.css";
 import SliderButton from "../components/SliderButton";
 
 export default function SetEditor() {
+
+  function getImageURL(fileName){
+    return `http://localhost:5000/images/${fileName}`
+  }
   const navigate = useNavigate();
 
   const { setId } =
@@ -11,7 +15,15 @@ export default function SetEditor() {
   const [isEditMode, setIsEditMode] = useState(!!setId);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("A new set");
-  const [cards, setCards] = useState([{ term: "", definition: "" }]);
+  const [cards, setCards] = useState([
+    {
+      id: crypto.randomUUID(),
+      term: "",
+      definition: "",
+      isExact: false,
+      image: null,
+    },
+  ]);
 
   useEffect(() => {
     if (isEditMode) {
@@ -25,7 +37,20 @@ export default function SetEditor() {
             const data = await res.json();
             setTitle(data.title);
             setDescription(data.description);
-            setCards(data.cards);
+            setCards(
+              data.cards.map((c) => ({
+                id: c.id,
+                term: c.term,
+                definition: c.definition,
+                isExact: c.is_exact,
+                image: c.image_filename
+                  ? {
+                      id: c.image_filename,
+                      file: null,
+                    }
+                  : null,
+              }))
+            );
           }
         } catch (err) {
           console.error("Error fetching set:", err);
@@ -36,25 +61,68 @@ export default function SetEditor() {
   }, [isEditMode, setId]);
 
   const addCardRow = () => {
-    setCards([...cards, { term: "", definition: "", isExact: false }]);
+    setCards([
+      ...cards,
+      {
+        id: crypto.randomUUID(),
+        term: "",
+        definition: "",
+        isExact: false,
+        image: null,
+      },
+    ]);
   };
 
-  const removeCardRow = (index) => {
-    if (cards.length > 1) {
-      const newCards = cards.filter((_, i) => i !== index);
-      setCards(newCards);
-    }
+  const removeCardRow = (cardId) => {
+    if (cards.length <= 1) return;
+    setCards((prev) => prev.filter((card) => card.id !== cardId));
   };
 
-  const handleCardChange = (index, field, value) => {
-    const newCards = [...cards];
-    newCards[index][field] = value;
-    setCards(newCards);
+  const handleCardChange = (cardId, field, value) => {
+    setCards((prev) =>
+      prev.map((card) =>
+        card.id === cardId ? { ...card, [field]: value } : card
+      )
+    );
   };
 
   const handleSubmit = async (e) => {
+    console.log(cards.map((c) => c.id));
+    console.log(cards.map((c) => c.image?.file));
+    console.log(cards.map((c) => c.image?.id));
     e.preventDefault();
     const token = localStorage.getItem("token");
+
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("description", description);
+
+    const newCards = cards.map((card) => {
+      const cleaned = {
+        id: card.id,
+        term: card.term,
+        definition: card.definition,
+        isExact: card.is_exact,
+      };
+
+      if (card.image?.file) {
+        //uploaded new image
+        cleaned.imageId = null
+      } else if (card.image?.id) {
+        //existing image, not changed
+        cleaned.imageId = card.image.id;
+      }
+
+      return cleaned;
+    });
+
+    formData.append("cards", JSON.stringify(newCards));
+
+    cards.forEach((card) => {
+      if (card.image?.file) {
+        formData.append(`image_${card.id}`, card.image.file);
+      }
+    });
 
     try {
       const res = await fetch(
@@ -64,16 +132,13 @@ export default function SetEditor() {
         {
           method: isEditMode ? "PUT" : "POST",
           headers: {
-            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ title, description, cards }),
+          body: formData,
         }
       );
 
-      if (res.ok) {
-        navigate("/dashboard");
-      }
+      if (res.ok) navigate("/dashboard");
     } catch (err) {
       console.error("Failed to save set", err);
     }
@@ -114,25 +179,62 @@ export default function SetEditor() {
 
         <div className="cards-list-creation">
           {cards.map((card, index) => (
-            <div key={index} className="card-input-row">
+            <div key={card.id} className="card-input-row">
               <div className="card-row-header">
                 <span className="card-number">{index + 1}</span>
                 <button
                   type="button"
                   className="delete-row-btn"
-                  onClick={() => removeCardRow(index)}
+                  onClick={() => removeCardRow(card.id)}
                   title="Delete card"
                 >
                   &times;
                 </button>
               </div>
               <div className="card-row-inputs">
+                <div className="input-field image-input">
+                  <label>IMAGE</label>
+                  {card.image?.file && (
+                    <img
+                      src={URL.createObjectURL(card.image.file)}
+                      alt={card.term}
+                      className="image-preview"
+                    />
+                  )}
+                  {card.image?.id && !card.image.file && (
+                    <img
+                      src={getImageURL(card.image.id)}
+                      alt={card.term}
+                      className="image-preview"
+                    />
+                  )}
+
+                  <input
+                    id={`file-${card.id}`}
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return; //Cancelled file selection
+
+                      handleCardChange(card.id, "image", {
+                        file,
+                        id: null,
+                      });
+                    }}
+                    hidden
+                  />
+
+                  <label htmlFor={`file-${card.id}`} className="file-btn">
+                    Choose Image
+                  </label>
+                </div>
                 <div className="input-field">
                   <input
                     placeholder="Term"
                     value={card.term}
                     onChange={(e) =>
-                      handleCardChange(index, "term", e.target.value)
+                      handleCardChange(card.id, "term", e.target.value)
                     }
                     required
                   />
@@ -143,7 +245,7 @@ export default function SetEditor() {
                     placeholder="Definition"
                     value={card.definition}
                     onChange={(e) =>
-                      handleCardChange(index, "definition", e.target.value)
+                      handleCardChange(card.id, "definition", e.target.value)
                     }
                     required
                   />
@@ -154,7 +256,7 @@ export default function SetEditor() {
                   <SliderButton
                     initial={card.is_exact || false}
                     toggleListener={(value) =>
-                      handleCardChange(index, "isExact", value)
+                      handleCardChange(card.id, "isExact", value)
                     }
                   ></SliderButton>
                 </div>

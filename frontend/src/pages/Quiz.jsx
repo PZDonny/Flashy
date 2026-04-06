@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import "../styles/Quiz.css";
+import TermImage from "../components/TermImage";
 
 export default function Quiz() {
   const { setId } = useParams();
@@ -116,16 +117,20 @@ export default function Quiz() {
         <div className="question-card">
           <p>Define</p>
           <hr></hr>
-          <p className="question-text">
-            {cardsetData ? cardsetData.cards[questionIndex].term : "..."}
-          </p>
+          <div className="question-info">
+            {cardsetData &&
+              cardsetData.cards[questionIndex]?.image_filename && (
+                <TermImage card={cardsetData.cards[questionIndex]} />
+              )}
+            <p className="question-text">
+              {cardsetData ? cardsetData.cards[questionIndex].term : "..."}
+            </p>
+          </div>
         </div>
       )}
 
       {result && (
-        <div
-          className={`result-container ${resultClass}`}
-        >
+        <div className={`result-container ${resultClass}`}>
           <strong>{result}</strong>
           <hr></hr>
           <span className="answer-feedback-label">YOUR ANSWER:</span>

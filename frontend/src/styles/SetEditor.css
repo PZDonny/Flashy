@@ -126,6 +126,7 @@
   flex: 1;
   display: flex;
   flex-direction: column-reverse;
+  justify-content: center;
 }
 
 .input-field input {
@@ -152,6 +153,40 @@
   flex: 0;
   align-items: center;
   justify-content: center;
+}
+
+.input-field.image-input {
+  flex-direction: column;
+  flex: 0;
+  align-items: center;
+  justify-content: center;
+}
+
+.image-preview {
+  margin-top: 0.5rem;
+  width: 80px;
+  height: 80px;
+  object-fit: fill;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+}
+
+.file-btn {
+  display: inline-block;
+  margin-top: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  background: #f9f9f9;
+  transition: 0.2s;
+}
+
+.file-btn:hover {
+  background: #f0f7ff;
+  border-color: #007bff;
+  color: #007bff;
 }
 
 .form-actions {
