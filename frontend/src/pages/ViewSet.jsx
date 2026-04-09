@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import { api } from "../api";
 import "../styles/ViewSet.css";
 import SliderButton from "../components/SliderButton";
 import TermImage from "../components/TermImage";
@@ -10,17 +11,11 @@ export default function ViewSet() {
 
   useEffect(() => {
     const fetchSetDetails = async () => {
-      const token = localStorage.getItem("token");
       try {
-        const res = await fetch(`http://localhost:5000/api/sets/${setId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (res.ok) {
-          const data = await res.json();
-          setCardsetData(data);
-        }
+        const data = await api.get(`/sets/${setId}`);
+        setCardsetData(data);
       } catch (err) {
-        console.error("Error fetching set:", err);
+        console.error("Error getting set:", err);
       }
     };
     fetchSetDetails();
@@ -35,8 +30,9 @@ export default function ViewSet() {
         <Link to="/dashboard" className="back">
           ← Return to Dashboard
         </Link>
-        <div className="header-info">
+        <div className="set-info">
           <h1>{cardsetData.title}</h1>
+          
           <p>{cardsetData.description || "No description."}</p>
           <span className="card-count">
             {cardsetData.cards.length} FLASHCARDS
@@ -53,12 +49,12 @@ export default function ViewSet() {
         </div>
       </header>
 
+      <hr></hr>
+
       <div className="cards">
         {cardsetData.cards.map((card) => (
           <div key={card.id} className="card">
-            {card.image_filename && (
-              <TermImage card={card} />
-            )}
+            {card.image_filename && <TermImage card={card} />}
             <div className="card-term">
               <label>TERM</label>
               <p>{card.term}</p>

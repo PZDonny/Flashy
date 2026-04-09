@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import "../styles/SetEditor.css";
+import { api } from "../api";
 import SliderButton from "../components/SliderButton";
 
 export default function SetEditor() {
-
-  function getImageURL(fileName){
-    return `http://localhost:5000/images/${fileName}`
+  function getImageURL(fileName) {
+    return `http://localhost:5000/images/${fileName}`;
   }
   const navigate = useNavigate();
 
-  const { setId } =
-    useParams(); /*if there's a set id passed in query params, then the set is being edited, not created */
+  /*if there's a set id passed in query params, then the set is being edited, not created */
+  const { setId } = useParams();
   const [isEditMode, setIsEditMode] = useState(!!setId);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("A new set");
@@ -28,13 +28,10 @@ export default function SetEditor() {
   useEffect(() => {
     if (isEditMode) {
       const fetchSetDetails = async () => {
-        const token = localStorage.getItem("token");
         try {
-          const res = await fetch(`http://localhost:5000/api/sets/${setId}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          if (res.ok) {
-            const data = await res.json();
+          const data = await api.get(`/sets/${setId}`);
+
+          if (data) {
             setTitle(data.title);
             setDescription(data.description);
             setCards(
@@ -53,7 +50,7 @@ export default function SetEditor() {
             );
           }
         } catch (err) {
-          console.error("Error fetching set:", err);
+          console.error("Error getting set:", err);
         }
       };
       fetchSetDetails();
@@ -91,7 +88,6 @@ export default function SetEditor() {
     console.log(cards.map((c) => c.image?.file));
     console.log(cards.map((c) => c.image?.id));
     e.preventDefault();
-    const token = localStorage.getItem("token");
 
     const formData = new FormData();
     formData.append("title", title);
@@ -107,7 +103,7 @@ export default function SetEditor() {
 
       if (card.image?.file) {
         //uploaded new image
-        cleaned.imageId = null
+        cleaned.imageId = null;
       } else if (card.image?.id) {
         //existing image, not changed
         cleaned.imageId = card.image.id;
@@ -125,20 +121,10 @@ export default function SetEditor() {
     });
 
     try {
-      const res = await fetch(
-        isEditMode
-          ? `http://localhost:5000/api/sets/${setId}`
-          : "http://localhost:5000/api/sets",
-        {
-          method: isEditMode ? "PUT" : "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: formData,
-        }
-      );
+      const func = isEditMode ? api.putFormData : api.postFormData;
+      await func(`/sets${isEditMode ? `/${setId}` : ""}`, formData);
 
-      if (res.ok) navigate("/dashboard");
+      navigate("/dashboard");
     } catch (err) {
       console.error("Failed to save set", err);
     }

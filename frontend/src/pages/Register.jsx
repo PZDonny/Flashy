@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { api } from "../api";
 import "../styles/Auth.css";
 
 export default function Register() {
@@ -17,21 +18,12 @@ export default function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
-      const res = await fetch("http://localhost:5000/api/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-      if (res.ok) {
-        navigate("/login");
-      } else {
-        const data = await res.json();
-        setResponse(data.message);
-      }
+      await api.post("/register", formData);
+      navigate("/login");
     } catch (err) {
-      console.log(err);
-      setResponse("Error submitting form");
+      setResponse(err);
     }
   };
 

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import "../styles/Quiz.css";
+import { api } from "../api";
 import TermImage from "../components/TermImage";
 
 export default function Quiz() {
@@ -17,17 +18,11 @@ export default function Quiz() {
 
   useEffect(() => {
     const fetchSetDetails = async () => {
-      const token = localStorage.getItem("token");
       try {
-        const res = await fetch(`http://localhost:5000/api/sets/${setId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (res.ok) {
-          const data = await res.json();
-          setCardsetData(data);
-        }
+        const data = await api.get(`/sets/${setId}`);
+        setCardsetData(data);
       } catch (err) {
-        console.error("Error fetching set:", err);
+        console.error("Error getting set:", err);
       }
     };
     fetchSetDetails();
@@ -52,7 +47,6 @@ export default function Quiz() {
       return;
     }
 
-    const token = localStorage.getItem("token");
     const userAnswer = e.target.answer.value;
     const currentCard = cardsetData.cards[questionIndex];
 
@@ -60,24 +54,20 @@ export default function Quiz() {
     setUserAnswer(userAnswer);
     try {
       setIsSubmitting(true);
-      const res = await fetch(`http://localhost:5000/api/check_answer`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          card_id: currentCard.id,
-          answer: userAnswer,
-        }),
+      api.post("/check_answer", {
+        card_id: currentCard.id,
+        answer: userAnswer,
+      });
+      const data = await api.post("/check_answer", {
+        card_id: currentCard.id,
+        answer: userAnswer,
       });
 
-      if (res.ok) {
-        const data = await res.json();
-        setResult(data.result_label);
-        setCorrectAnswer(data.correct_answer);
-        setResultClass(data.result_class);
-      }
+      setResult(data.result_label);
+      setCorrectAnswer(data.correct_answer);
+      setResultClass(data.result_class);
+    } catch (err) {
+      console.log(err);
     } finally {
       setIsSubmitting(false);
     }

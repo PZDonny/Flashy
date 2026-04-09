@@ -8,7 +8,7 @@ import Dashboard from "./pages/Dashboard";
 import ViewSet from "./pages/ViewSet";
 import Quiz from "./pages/Quiz";
 import SetEditor from "./pages/SetEditor";
-import AuthRoute from "./components/AuthRoute";
+import ProtectedAuthRoute from "./components/ProtectedAuthRoute";
 
 function App() {
   return (
@@ -19,8 +19,8 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          
-          <Route element={<AuthRoute />}>
+
+          <Route element={<ProtectedAuthRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/edit-set/:setId?" element={<SetEditor />} />
             <Route path="/sets/:setId" element={<ViewSet />} />

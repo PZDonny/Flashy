@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { getAuth } from "../contexts/AuthContext";
+import { useAuth } from "../contexts/AuthContext";
+import { api } from "../api";
 import "../styles/Dashboard.css";
 
 export default function Dashboard() {
-  const { user, loading } = getAuth();
+  const { user, loading } = useAuth();
   const [sets, setSets] = useState([]);
   const navigate = useNavigate();
 
@@ -13,20 +14,8 @@ export default function Dashboard() {
       navigate("/");
     }
     const fetchSets = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) return;
-
-      try {
-        const res = await fetch("http://localhost:5000/api/sets", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (res.ok) {
-          const data = await res.json();
-          setSets(data);
-        }
-      } catch (err) {
-        console.error("Error fetching sets:", err);
-      }
+      const data = await api.get("/sets");
+      setSets(data);
     };
 
     if (user) fetchSets();
@@ -36,18 +25,8 @@ export default function Dashboard() {
   if (!user) return null;
 
   const handleDelete = async (setId) => {
-    try {
-      const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:5000/api/sets/${setId}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        setSets(sets.filter((set) => set.id !== setId));
-      }
-    } catch (err) {
-      console.error("Failed to delete set:", err);
-    }
+    await api.delete(`/sets/${setId}`);
+    setSets(sets.filter((set) => set.id !== setId));
   };
 
   return (
@@ -64,11 +43,15 @@ export default function Dashboard() {
           sets.map((set) => (
             <div key={set.id} className="set">
               <div className="set-content">
-                <h3>{set.title}</h3>
+                <div className="set-top">
+                  <h3>{set.title}</h3>
+                  <span>{set.is_starred ? "⭐" : "☆"}</span>
+                </div>
+
                 <p>{set.description || "No description"}</p>
               </div>
               <div className="set-actions">
-                <Link to={`/sets/${set.id}`} className="view-link">
+                <Link to={`/sets/${set.id}`} className="view">
                   View Cards
                 </Link>
                 <button
