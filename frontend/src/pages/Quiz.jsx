@@ -67,7 +67,7 @@ export default function Quiz() {
       setCorrectAnswer(data.correct_answer);
       setResultClass(data.result_class);
     } catch (err) {
-      console.log(err);
+      console.error(err);
     } finally {
       setIsSubmitting(false);
     }

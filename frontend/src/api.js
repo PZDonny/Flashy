@@ -1,6 +1,12 @@
 const API_BASE_URL = "http://localhost:5000/api";
 
+
 export const api = {
+  logout: () => {},
+  hasToken: () => {
+    return localStorage.getItem("token");
+  },
+
   get: async (url) => {
     const token = localStorage.getItem("token");
 
@@ -91,6 +97,7 @@ export const api = {
 async function handleResponse(res) {
   if (res.status === 401) {
     localStorage.removeItem("token");
+    api.logout();
     throw new Error("401. Unauthorized");
   }
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { api } from "../api";
 import "../styles/Dashboard.css";
@@ -7,19 +7,19 @@ import "../styles/Dashboard.css";
 export default function Dashboard() {
   const { user, loading } = useAuth();
   const [sets, setSets] = useState([]);
-  const navigate = useNavigate();
 
   useEffect(() => {
-    if (!loading && !user) {
-      navigate("/");
-    }
     const fetchSets = async () => {
-      const data = await api.get("/sets");
-      setSets(data);
+      try {
+        const data = await api.get("/sets");
+        setSets(data);
+      } catch (err) {
+        console.error(err);
+      }
     };
 
     if (user) fetchSets();
-  }, [user, loading, navigate]);
+  }, [user,]);
 
   if (loading) return <p>Loading...</p>;
   if (!user) return null;

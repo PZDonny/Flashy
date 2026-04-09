@@ -22,7 +22,7 @@ export default function Login() {
       setUser(data.user);
       navigate("/dashboard");
     } catch (err) {
-      console.log(err);
+      console.error(err);
       setResponse("Error submitting form");
     }
   };

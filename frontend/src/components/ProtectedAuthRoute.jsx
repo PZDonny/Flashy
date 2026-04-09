@@ -6,7 +6,7 @@ function ProtectedAuthRoute() {
   const { user, loading } = useAuth();
   if (loading) return null;
 
-  return user ? <Outlet /> : <Navigate to="/" />;
+  return user ? <Outlet /> : <Navigate to="/" replace/>;
 }
 
 export default ProtectedAuthRoute;
