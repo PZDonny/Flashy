@@ -59,6 +59,10 @@
   overflow: hidden;
 }
 
+.set.starred{
+  background: linear-gradient(white, yellow);
+}
+
 .set:hover {
   transform: translateY(-6px);
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
@@ -78,7 +82,7 @@
   text-overflow: ellipsis;
 }
 
-.set-content .set-top{
+.set-content .set-top {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
@@ -90,9 +94,15 @@
 }
 
 .set-content .set-top h3,
-.set-content .set-top span{
+.set-content .set-top span {
   margin: 0 0 0.75rem 0;
   font-size: 1.25rem;
+}
+
+.set-content .set-top .star {}
+
+.set-content .set-top .star:hover {
+  cursor: pointer;
 }
 
 .set .set-actions {
@@ -190,7 +200,7 @@
     align-items: flex-start;
     gap: 1rem;
   }
-  
+
   .create-btn {
     width: 90%;
     justify-content: center;

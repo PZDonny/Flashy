@@ -41,11 +41,11 @@ export default function Dashboard() {
       <div className="sets">
         {sets.length > 0 ? (
           sets.map((set) => (
-            <div key={set.id} className="set">
+            <div key={set.id} className={"set" + (!set.is_starred ? " starred" : "")}>
               <div className="set-content">
                 <div className="set-top">
                   <h3>{set.title}</h3>
-                  <span>{set.is_starred ? "⭐" : "☆"}</span>
+                  <span className="star">{set.is_starred ? "⭐" : "☆"}</span>
                 </div>
 
                 <p>{set.description || "No description"}</p>
