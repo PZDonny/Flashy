@@ -54,10 +54,6 @@ export default function Quiz() {
     setUserAnswer(userAnswer);
     try {
       setIsSubmitting(true);
-      api.post("/check_answer", {
-        card_id: currentCard.id,
-        answer: userAnswer,
-      });
       const data = await api.post("/check_answer", {
         card_id: currentCard.id,
         answer: userAnswer,

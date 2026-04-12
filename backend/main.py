@@ -40,6 +40,7 @@ class FlashcardSet(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     title = db.Column(db.String(50), nullable=False)
     description = db.Column(db.String(255), nullable=False)
+    is_starred = db.Column(db.Boolean, nullable=False, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Flashcard(db.Model):
@@ -218,17 +219,17 @@ def create_app():
             return jsonify([{
                 'id': s.id,
                 'title': s.title,
-                'description': s.description
+                'description': s.description,
+                'is_starred': s.is_starred
             } for s in sets]), 200
     
-    @app.route('/api/sets/<int:id>', methods=['GET', 'PUT', 'DELETE'])
+    @app.route('/api/sets/<int:id>', methods=['GET', 'PUT', 'DELETE', 'PATCH'])
     @jwt_required(optional=True)
     def flashcard_set(id):
         set = FlashcardSet.query.filter_by(id=id).first()
 
         if not set:
             return jsonify({"msg": "Set not found"}), 404
-        
         
         if request.method == 'GET':
             cards = Flashcard.query.filter_by(set_id=id).all()
@@ -263,7 +264,18 @@ def create_app():
                     db.session.commit()
                 return jsonify({'msg': 'Set successfully deleted'}), 204
             except :
-                pass
+                
+                return jsonify({'msg: Failed to delete set'}), 400
+
+        elif request.method == 'PATCH':
+            try:
+                data = request.get_json()
+                is_starred = data.get('is_starred')
+                set.is_starred = is_starred
+                db.session.commit()
+                return jsonify({'msg': f'Set starred set to {is_starred}'}), 200
+            except:
+                return jsonify({'msg: Failed to update set starred'}), 400
             
         elif request.method == 'PUT':
             set.title = request.form.get("title", set.title)

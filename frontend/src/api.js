@@ -1,6 +1,5 @@
 const API_BASE_URL = "http://localhost:5000/api";
 
-
 export const api = {
   logout: () => {},
   hasToken: () => {
@@ -41,6 +40,21 @@ export const api = {
 
     const res = await fetch(`${API_BASE_URL}${url}`, {
       method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
+      body: JSON.stringify(body),
+    });
+
+    return handleResponse(res);
+  },
+
+  patch: async (url, body) => {
+    const token = localStorage.getItem("token");
+
+    const res = await fetch(`${API_BASE_URL}${url}`, {
+      method: "PATCH",
       headers: {
         "Content-Type": "application/json",
         ...(token && { Authorization: `Bearer ${token}` }),

@@ -99,10 +99,22 @@
   font-size: 1.25rem;
 }
 
-.set-content .set-top .star {}
+.set .star {
+  width: 5%;
+  opacity: 0.3;
+  filter: grayscale(100%) brightness(0.7);
+  transition: 0.2s ease;
+}
 
-.set-content .set-top .star:hover {
+.set .star:hover {
+  opacity: 0.6;
+  transform: scale(1.1);
   cursor: pointer;
+}
+
+.set.starred .star {
+  opacity: 1;
+  filter: none;
 }
 
 .set .set-actions {
