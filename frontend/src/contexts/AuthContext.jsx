@@ -11,7 +11,7 @@ export const AuthProvider = ({ children }) => {
   api.logout = () => {
     localStorage.removeItem("token");
     setUser(null);
-    <Navigate to='/'></Navigate>
+    <Navigate to='/' />
   };
 
   useEffect(() => {
