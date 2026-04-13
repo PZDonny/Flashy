@@ -109,15 +109,13 @@ export const api = {
 };
 
 async function handleResponse(res) {
-  if (res.status === 401) {
-    localStorage.removeItem("token");
-    api.logout();
-    throw new Error("401. Unauthorized");
-  }
-
   if (!res.ok) {
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      api.logout();
+    }
     const error = await res.json().catch(() => {});
-    throw error;
+    throw Error(error.msg);
   }
 
   if (res.status === 204) return null;
