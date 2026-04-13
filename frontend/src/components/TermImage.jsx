@@ -1,12 +1,17 @@
-import React from 'react'
-import '../styles/TermImage.css'
+import React from "react";
+import "../styles/TermImage.css";
 
-function TermImage({card}) {
+function TermImage({ card }) {
   return (
     <div className="term-image-container">
-        <img src={`http://localhost:5000/images/${card.image_filename}`} alt={card.term} className="term-image" />
+      <img
+        key={card.id}
+        src={`http://localhost:5000/api/flashcards/${card.id}/image`}
+        alt={card.term}
+        className="term-image"
+      />
     </div>
-  )
+  );
 }
 
-export default TermImage
+export default TermImage;

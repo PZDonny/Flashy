@@ -32,7 +32,7 @@ export default function ViewSet() {
         </Link>
         <div className="set-info">
           <h1>{cardsetData.title}</h1>
-          
+
           <p>{cardsetData.description || "No description."}</p>
           <span className="card-count">
             {cardsetData.cards.length} FLASHCARDS
@@ -54,7 +54,7 @@ export default function ViewSet() {
       <div className="cards">
         {cardsetData.cards.map((card) => (
           <div key={card.id} className="card">
-            {card.image_filename && <TermImage card={card} />}
+            {card.image_url && <TermImage card={card} />}
             <div className="card-term">
               <label>TERM</label>
               <p>{card.term}</p>

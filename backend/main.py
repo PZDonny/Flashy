@@ -1,8 +1,10 @@
 import os
+import io
+import hashlib
 import re
 import bcrypt
 import similarity
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory, Response
 from werkzeug.utils import secure_filename
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, verify_jwt_in_request
 from flask_cors import CORS
@@ -21,10 +23,6 @@ DB_URI = os.getenv('SQLALCHEMY_DATABASE_URI')
 DEBUG = os.getenv('DEBUG', 'False').lower()
 
 ALLOWED_IMAGE_EXTENSIONS = {"png", "jpg", "jpeg", "webp"}
-IMAGE_FOLDER = 'images/'
-
-os.makedirs(IMAGE_FOLDER, exist_ok=True)
-
 
 db = SQLAlchemy()
 
@@ -49,7 +47,7 @@ class Flashcard(db.Model):
     term = db.Column(db.String(255), nullable=False)
     definition = db.Column(db.String(255), nullable=False)
     is_exact = db.Column(db.Boolean, nullable=False, default=False)
-    image_filename = db.Column(db.String(255), nullable=True)
+    image = db.Column(db.LargeBinary, nullable=True)
 
 class Quiz(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -152,12 +150,11 @@ def create_app():
             'email': user.email
         }), 200
     
-
-    def save_image(file) -> str:
+    def shrink_image(file) -> Image:
         def allowed_file(filename: str) -> bool:
             return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_IMAGE_EXTENSIONS
-    
-        MAX_IMAGE_SIZE = (200, 200)
+
+        MAX_IMAGE_SIZE = (512, 512)
         
         if file.filename == '':
             return None
@@ -170,20 +167,25 @@ def create_app():
         image = image.convert('RGB') #Gets rid of possible .png alpha
         image.thumbnail(MAX_IMAGE_SIZE)
 
-        filename = f"{uuid4().hex}.jpg"
-        image_path = os.path.join(IMAGE_FOLDER, filename)
-        image.save(image_path)
-        return filename
+        return image
+    
+    def get_image_bytes(image:Image):
+        image = shrink_image(image)
+        if not image:
+            return None
+        buffer = io.BytesIO()
+        image.save(buffer, format='JPEG')
+        return buffer.getvalue()
 
-    def get_image_filenames(request) -> dict:
-        image_filenames = {}
+    def get_image_bytes_dict(request) -> dict:
+        images_dict = {}
         for key in request.files.keys():
             if key.startswith("image_"):
                 card_id = str(key.split("_", 1)[1])
                 image = request.files[key]
-                image_filename = save_image(image)
-                image_filenames[card_id] = image_filename
-        return image_filenames
+                image_bytes = get_image_bytes(image)
+                images_dict[card_id] = image_bytes
+        return images_dict
 
     @app.route('/api/sets', methods=['GET', 'POST'])
     @jwt_required()
@@ -194,7 +196,7 @@ def create_app():
             description = request.form.get("description")
             cards_json = request.form.get("cards")
             cards = json.loads(cards_json)
-            image_filenames = get_image_filenames(request)
+            image_bytes_dict = get_image_bytes_dict(request)
 
             try:
                 new_set = FlashcardSet(user_id=current_user, title=title, description=description)
@@ -204,12 +206,12 @@ def create_app():
                 db.session.flush()
 
                 for card in cards:
-                    image_filename = image_filenames.get(str(card.get("id")))
+                    image_bytes = image_bytes_dict.get(str(card.get("id")))
                     new_card = Flashcard(set_id=new_set.id, 
                                          term=card['term'], 
                                          definition=card['definition'], 
                                          is_exact=card.get('isExact', False),
-                                         image_filename=image_filename or None)
+                                         image=image_bytes or None)
                     db.session.add(new_card)
                 db.session.commit()
                 return jsonify({'msg': 'Flashcard set created successfully'}), 201
@@ -245,7 +247,7 @@ def create_app():
                     'term': c.term,
                     'definition': c.definition,
                     'is_exact': c.is_exact,
-                    'image_filename': c.image_filename
+                    'image_url': f'/api/flashcards/{c.id}/image' if c.image else None
                 } for c in cards]
             }), 200
 
@@ -287,7 +289,7 @@ def create_app():
 
             cards_data = request.form.get("cards", [])
             cards = json.loads(cards_data) if cards_data else []
-            image_filenames = get_image_filenames(request)
+            image_bytes_dict = get_image_bytes_dict(request)
 
             existing_cards = Flashcard.query.filter_by(set_id=id).all()
             existing_cards_dict = {card.id: card for card in existing_cards}
@@ -302,16 +304,16 @@ def create_app():
                     card.definition = card_item.get('definition', card.definition)
                     card.is_exact = card_item.get('isExact', card.is_exact)
                     stringID = str(card_id)
-                    if stringID in image_filenames:
-                        app.logger.info(f"Updating image for card {card_id}: {image_filenames[stringID]}")
-                        card.image_filename = image_filenames.get(stringID, card.image_filename)
+                    if stringID in image_bytes_dict:
+                        app.logger.info(f"Updating image for card {card_id}: {image_bytes_dict[stringID]}")
+                        card.image = image_bytes_dict.get(stringID, card.image)
                 else: #New Card
                     new_card = Flashcard(
                         set_id=id,
                         term=card_item.get('term'),
                         definition=card_item.get('definition'),
                         is_exact=card_item.get('isExact', False),
-                        image_filename=image_filenames.get(card_id, None)
+                        image=image_bytes_dict.get(card_id, None)
                     )
                     db.session.add(new_card)
 
@@ -323,7 +325,7 @@ def create_app():
             return jsonify({'msg': 'Set updated successfully'}), 200
 
     @app.route('/api/sets/<int:id>/quiz', methods=['POST'])
-    @jwt_required(optional=True)
+    @jwt_required()
     def quiz(id):
         pass
 
@@ -359,12 +361,24 @@ def create_app():
             'result_class': result_class
         }), 200
 
-    @app.route('/images/<filename>', methods=['GET'])
-    def get_image(filename):
-        return send_from_directory(IMAGE_FOLDER, filename)
+    @app.route('/api/flashcards/<int:id>/image', methods=['GET'])
+    def get_image(id):
+        card = Flashcard.query.filter_by(id=id).first()
+        if not card or not card.image:
+            return jsonify({'msg': 'Image not found'}), 404
+        
+        etag = hashlib.md5(card.image).hexdigest() #image hash
+        
+        if request.headers.get("If-None-Match") == etag: #client/user already has image & image didn't change
+            return '', 304
+
+        response = Response(card.image)
+        response.mimeType = 'image/jpeg'
+        response.headers['Cache-Control'] = 'public, max-age=86400, immutable' #24hrs
+        response.headers['ETag'] = etag
+
+        return response
             
-
-
     return app
 
 if __name__ == '__main__':

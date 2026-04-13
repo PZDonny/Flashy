@@ -5,8 +5,8 @@ import { api } from "../api";
 import SliderButton from "../components/SliderButton";
 
 export default function SetEditor() {
-  function getImageURL(fileName) {
-    return `http://localhost:5000/images/${fileName}`;
+  function getImageURL(cardId) {
+    return `http://localhost:5000/api/flashcards/${cardId}/image`;
   }
   const navigate = useNavigate();
 
@@ -40,10 +40,10 @@ export default function SetEditor() {
                 term: c.term,
                 definition: c.definition,
                 isExact: c.is_exact,
-                image: c.image_filename
+                image: c.image_url
                   ? {
-                      id: c.image_filename,
-                      file: null,
+                      image: null,
+                      exists: true,
                     }
                   : null,
               }))
@@ -84,9 +84,6 @@ export default function SetEditor() {
   };
 
   const handleSubmit = async (e) => {
-    console.log(cards.map((c) => c.id));
-    console.log(cards.map((c) => c.image?.file));
-    console.log(cards.map((c) => c.image?.id));
     e.preventDefault();
 
     const formData = new FormData();
@@ -101,22 +98,17 @@ export default function SetEditor() {
         isExact: card.isExact,
       };
 
-      if (card.image?.file) {
-        //uploaded new image
-        cleaned.imageId = null;
-      } else if (card.image?.id) {
-        //existing image, not changed
-        cleaned.imageId = card.image.id;
-      }
-
       return cleaned;
     });
 
     formData.append("cards", JSON.stringify(newCards));
 
     cards.forEach((card) => {
-      if (card.image?.file) {
-        formData.append(`image_${card.id}`, card.image.file);
+      if (card.image) {
+        const image = card.image.image;
+        if (image) {
+          formData.append(`image_${card.id}`, image);
+        }
       }
     });
 
@@ -180,16 +172,16 @@ export default function SetEditor() {
               <div className="card-row-inputs">
                 <div className="input-field image-input">
                   <label>IMAGE</label>
-                  {card.image?.file && (
+                  {card.image?.image && (
                     <img
-                      src={URL.createObjectURL(card.image.file)}
+                      src={URL.createObjectURL(card.image.image)}
                       alt={card.term}
                       className="image-preview"
                     />
                   )}
-                  {card.image?.id && !card.image.file && (
+                  {card.image?.exists && !card.image.image && (
                     <img
-                      src={getImageURL(card.image.id)}
+                      src={getImageURL(card.id)}
                       alt={card.term}
                       className="image-preview"
                     />
@@ -204,8 +196,8 @@ export default function SetEditor() {
                       if (!file) return; //Cancelled file selection
 
                       handleCardChange(card.id, "image", {
-                        file,
-                        id: null,
+                        image: file,
+                        exists: false,
                       });
                     }}
                     hidden
