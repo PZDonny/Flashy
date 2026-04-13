@@ -47,13 +47,13 @@ def is_semantic(term_definition, user_answer):
     if semantic_score >= MIN_CORRECT_SEMANTIC_SIMILARITY_THRESHOLD and typo_score >= MIN_CLOSE_TYPO_MEANING_THRESHOLD:
         return (f"Correct. {semantic_score*100:.2f}% Accuracy", semantic_score, "correct")
 
+
+    score = max(typo_score, semantic_score)
     #Close
     if typo_score >= MIN_CLOSE_TYPO_MEANING_THRESHOLD or semantic_score >= MIN_CLOSE_SEMANTIC_SIMILARITY_THRESHOLD:
-        score = max(typo_score, semantic_score)
         return (f"Close. {score*100:.2f}% Accuracy", score, "close")
 
     #Incorrect
-    score = max(typo_score, semantic_score)
     return (f"Incorrect. {score*100:.2f}% Accuracy", score, "incorrect")
 
 def is_string(term_definition, user_answer):
