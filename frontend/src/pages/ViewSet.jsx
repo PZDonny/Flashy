@@ -4,6 +4,8 @@ import { api } from "../api";
 import "../styles/ViewSet.css";
 import SliderButton from "../components/SliderButton";
 import TermImage from "../components/TermImage";
+import SpeechButton from "../components/SpeechButton";
+import BackButton from "../components/BackButton";
 
 export default function ViewSet() {
   const { setId } = useParams();
@@ -27,9 +29,7 @@ export default function ViewSet() {
   return (
     <div className="set-container">
       <header className="set-header">
-        <Link to="/dashboard" className="back">
-          ← Return to Dashboard
-        </Link>
+        <BackButton to='/dashboard' text='Return to Dashboard'/>
         <div className="set-info">
           <h1>{cardsetData.title}</h1>
 
@@ -55,16 +55,24 @@ export default function ViewSet() {
         {cardsetData.cards.map((card) => (
           <div key={card.id} className="card">
             {card.image_url && <TermImage card={card} />}
-            <div className="card-term">
-              <label>TERM</label>
-              <p>{card.term}</p>
+
+
+            <div className="card-property-container">
+              <div className="card-term">
+                <label>TERM</label>
+                <p>{card.term}</p>
+              </div>
+              <SpeechButton text={card.term} />
             </div>
 
             <div className="card-divider"></div>
 
-            <div className="card-definition">
-              <label>DEFINITION</label>
-              <p>{card.definition}</p>
+            <div className="card-property-container">
+              <div className="card-definition">
+                <label>DEFINITION</label>
+                <p>{card.definition}</p>
+              </div>
+              <SpeechButton text={card.definition} />
             </div>
 
             <div className="card-divider"></div>

@@ -1,0 +1,25 @@
+.speech-btn {
+  padding: 10px;
+  margin-top: 10px;
+  display: inline-block;
+  border-radius: 50%;
+  background: #e2e3e4;
+  border: 1px solid #e5e7eb;
+  transition: 0.2s ease;
+  color: #4b5563;
+}
+
+.speech-btn:hover {
+  background: #e5e7eb;
+  cursor: pointer;
+}
+
+.speech-btn:active {
+  transform: scale(0.95);
+  background: #d1d5db;
+}
+
+.speech-btn.playing {
+  background: #78df64;
+  box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
+}

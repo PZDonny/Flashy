@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import "../styles/Quiz.css";
 import { api } from "../api";
 import TermImage from "../components/TermImage";
+import SpeechButton from "../components/SpeechButton";
 
 export default function Quiz() {
   const { setId } = useParams();
@@ -101,16 +102,20 @@ export default function Quiz() {
 
       {!quizCompleted && (
         <div className="question-card">
-          <p>Define</p>
+          <p className="define">Define</p>
           <hr></hr>
           <div className="question-info">
-            {cardsetData &&
-              cardsetData.cards[questionIndex]?.image_filename && (
-                <TermImage card={cardsetData.cards[questionIndex]} />
-              )}
-            <p className="question-text">
-              {cardsetData ? cardsetData.cards[questionIndex].term : "..."}
-            </p>
+            {cardsetData && cardsetData.cards[questionIndex]?.image_url && (
+              <TermImage card={cardsetData.cards[questionIndex]} />
+            )}
+            <div className="question-term-container">
+              <p className="question-term">
+                {cardsetData ? cardsetData.cards[questionIndex].term : "..."}
+              </p>
+              <SpeechButton
+                text={cardsetData ? cardsetData.cards[questionIndex].term : ""}
+              />
+            </div>
           </div>
         </div>
       )}
