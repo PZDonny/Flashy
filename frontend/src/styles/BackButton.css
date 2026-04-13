@@ -1,0 +1,15 @@
+.back-btn {
+  display: inline-block;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  transition: transform 0.2s;
+}
+
+.back-btn > * {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.back-btn:hover {
+  transform: translateX(-5px);
+}
