@@ -2,7 +2,7 @@
   max-width: 1200px;
   margin: 2rem auto;
   padding: 0 2rem;
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   color: #333;
 }
 
@@ -59,14 +59,25 @@
   overflow: hidden;
 }
 
-.set.starred{
-  background: linear-gradient(white, yellow);
+.set.starred {
+  background: linear-gradient(
+    to bottom,
+    white 0%,
+    white 55%,
+    rgb(255, 243, 80) 85%,
+    rgb(255, 243, 80) 100%
+  );
 }
 
 .set:hover {
   transform: translateY(-6px);
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
   border-color: #007bff;
+}
+
+.set.starred:hover{
+  box-shadow: 0 12px 24px rgba(230, 230, 98, 0.5);
+  border-color: gold;
 }
 
 .set-content {
