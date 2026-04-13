@@ -4,7 +4,7 @@
   align-items: center;
   justify-content: center;
   background-color: #f4f7f6;
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   padding: 20px;
 }
 
@@ -60,6 +60,34 @@
   outline: none;
   border-color: #007bff;
   box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.password-container .password-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  margin: 0;
+  margin-bottom: 5px;
+  min-height: 1em;
+}
+
+.password-info .password-match {
+  color: red;
+  align-self: flex-end;
+  margin: 0;
+}
+
+.password-container .password-info .password-visibility p {
+  margin: 0;
+}
+
+.password-container .password-info .password-visibility {
+  display: flex;
+  align-items: flex-end;
+  margin-bottom: 5px;
+  padding: 0;
+  margin: 0;
+  gap: 6px;
 }
 
 .auth-submit-btn {

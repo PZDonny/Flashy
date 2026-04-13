@@ -93,6 +93,7 @@ def create_app():
         username = data.get('username')
         email = data.get('email')
         password = data.get('password')
+        confirm_pw = data.get('confirmPassword')
 
         if not re.match(r'^[a-zA-Z0-9_]+$', username):
             return jsonify({'msg': 'Username can only contain letters, numbers, and underscores'}), 400
@@ -101,6 +102,9 @@ def create_app():
             return jsonify({'msg': 'Username already exists'}), 400
         if User.query.filter_by(email=email).first():
             return jsonify({'msg': 'Email already exists'}), 400
+        
+        if password != confirm_pw:
+            return jsonify({'msg': 'Passwords do not match'}), 400
 
         try:
             password_hash = hash_password(password)

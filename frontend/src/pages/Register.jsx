@@ -2,15 +2,18 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { api } from "../api";
 import "../styles/Auth.css";
+import SliderButton from "../components/SliderButton";
 
 export default function Register() {
   const [formData, setFormData] = useState({
     email: "",
     username: "",
     password: "",
+    confirmPassword: "",
   });
   const [response, setResponse] = useState("");
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -23,7 +26,7 @@ export default function Register() {
       await api.post("/register", formData);
       navigate("/login");
     } catch (err) {
-      setResponse(err);
+      setResponse(err.message);
     }
   };
 
@@ -62,17 +65,50 @@ export default function Register() {
             />
           </div>
 
-          <div className="form-field">
-            <label htmlFor="password">Password</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              placeholder="••••••••"
-              value={formData.password}
-              onChange={handleChange}
-              required
-            />
+          <div className="password-container">
+            <div className="password-info">
+              <p className="password-match">
+                {(formData.password || formData.confirmPassword) &&
+                formData.password != formData.confirmPassword
+                  ? "Passwords do not match"
+                  : ""}
+              </p>
+              <div className="password-visibility">
+                <p>Show Password</p>
+                <SliderButton
+                  small={true}
+                  toggleListener={(state) => {
+                    setShowPassword(state);
+                  }}
+                ></SliderButton>
+              </div>
+            </div>
+
+            <div className="form-field">
+              <label htmlFor="password">Password</label>
+              <input
+                type={showPassword ? "text" : "password"}
+                id="password"
+                name="password"
+                placeholder="••••••••"
+                value={formData.password}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div className="form-field">
+              <label htmlFor="confirm-password">Confirm Password</label>
+              <input
+                type={showPassword ? "text" : "password"}
+                id="confirm-password"
+                name="confirmPassword"
+                placeholder="••••••••"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                required
+              />
+            </div>
           </div>
 
           <button type="submit" className="auth-submit-btn">
