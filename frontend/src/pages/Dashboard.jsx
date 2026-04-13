@@ -2,15 +2,34 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { api } from "../api";
+import SetSearchBar from "../components/SetSearchBar";
 import star from "../assets/star.svg";
 import "../styles/Dashboard.css";
 
 export default function Dashboard() {
   const { user, loading } = useAuth();
   const [sets, setSets] = useState([]);
-  const sortedSets = useMemo(() => { //sorts again when sets changed, instead of on every rerender
+  const [search, setSearch] = useState("");
+  const [searchDescription, setSearchDescription] = useState(false);
+
+  const sortedSets = useMemo(() => {
+    //sorts again when sets changed, instead of on every rerender
     return [...sets].sort((a, b) => b.is_starred - a.is_starred);
   }, [sets]);
+
+  const filteredSets = useMemo(() => {
+    const query = search.toLowerCase();
+
+    return sortedSets.filter((set) => {
+      const inTitle = set.title.toLowerCase().includes(query);
+
+      const inDescription =
+        searchDescription &&
+        (set.description || "").toLowerCase().includes(query);
+
+      return inTitle || inDescription;
+    });
+  }, [sortedSets, search, searchDescription]);
 
   useEffect(() => {
     const fetchSets = async () => {
@@ -39,7 +58,7 @@ export default function Dashboard() {
         return set.id === setId ? { ...set, is_starred: !starred } : set;
       })
     );
-    await api.patch(`/sets/${setId}`, { 'is_starred': !starred });
+    await api.patch(`/sets/${setId}`, { is_starred: !starred });
   };
 
   function createSet(set) {
@@ -77,15 +96,35 @@ export default function Dashboard() {
   return (
     <div className="dashboard-container">
       <header className="dashboard-header">
-        <h1>My Sets</h1>
-        <Link to="/edit-set" className="create-btn">
-          <span>+</span> Create New Set
-        </Link>
+        <div className="dashboard-header-top">
+          <h1>My Sets</h1>
+
+          <Link to="/edit-set" className="create-btn">
+            <span>+</span> Create New Set
+          </Link>
+        </div>
+
+        <div className="dashboard-header-search">
+          <SetSearchBar
+            value={search}
+            onChange={setSearch}
+            searchDescription={searchDescription}
+            onToggleDescription={setSearchDescription}
+          />
+        </div>
       </header>
 
       <div className="sets">
         {sets.length > 0 ? (
-          sortedSets.map((set) => createSet(set))
+          filteredSets.length > 0 ? (
+            filteredSets.map((set) => createSet(set))
+          ) : (
+            <div className="empty">
+              <div className="empty-emoji">❓</div>
+              <h2>No sets found</h2>
+              <p>Try a different search or toggle set description search.</p>
+            </div>
+          )
         ) : (
           <div className="empty">
             <div className="empty-emoji">📚</div>
