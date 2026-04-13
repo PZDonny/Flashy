@@ -22,6 +22,11 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (formData.password !== formData.confirmPassword) {
+      setResponse("Passwords do not match");
+      return;
+    }
+
     try {
       await api.post("/register", formData);
       navigate("/login");
@@ -69,7 +74,7 @@ export default function Register() {
             <div className="password-info">
               <p className="password-match">
                 {(formData.password || formData.confirmPassword) &&
-                formData.password != formData.confirmPassword
+                formData.password !== formData.confirmPassword
                   ? "Passwords do not match"
                   : ""}
               </p>
