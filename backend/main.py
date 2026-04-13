@@ -55,6 +55,13 @@ class Quiz(db.Model):
     total_questions = db.Column(db.Integer, nullable=False)
     taken_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
+class QuizAnswer(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    quiz_id = db.Column(db.Integer, db.ForeignKey('quiz.id'), nullable=False)
+    card_id = db.Column(db.Integer, db.ForeignKey('flashcard.id'))
+    user_answer = db.Column(db.String(255), nullable=False)
+    is_correct = db.Column(db.Boolean)
+
 def create_app():
     app = Flask(__name__)
 
