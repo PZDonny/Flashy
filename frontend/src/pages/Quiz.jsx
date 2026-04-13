@@ -76,7 +76,7 @@ export default function Quiz() {
       <header className="quiz-header">
         <BackButton text="Back to Set" to={`/sets/${setId}`} />
         <h1>{cardsetData ? cardsetData.title : "Loading..."}</h1>
-        <div class="question-data">
+        <div className="question-data">
           <div>
             <h2>
               Question {questionIndex + 1} of {cardsetData?.cards.length || 0}
