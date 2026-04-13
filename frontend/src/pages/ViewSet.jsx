@@ -29,7 +29,7 @@ export default function ViewSet() {
   return (
     <div className="set-container">
       <header className="set-header">
-        <BackButton to='/dashboard' text='Return to Dashboard'/>
+        <BackButton to='/dashboard' text='Return to Dashboard' />
         <div className="set-info">
           <h1>{cardsetData.title}</h1>
 
@@ -40,11 +40,14 @@ export default function ViewSet() {
         </div>
 
         <div className="set-actions">
-          <Link to={`/edit-set/${setId}`} className="btn edit-btn">
+          <Link to={`/edit-set/${setId}`} className="set-btn edit-btn">
             Edit Set ✏️
           </Link>
-          <Link to={`/sets/${setId}/quiz`} className="btn quiz-btn">
+          <Link to={`/sets/${setId}/quiz`} className="set-btn quiz-btn">
             Take a Quiz 📝
+          </Link>
+          <Link to={`/sets/${setId}/quiz-history`} className="set-btn history-btn">
+            Quiz History 📊
           </Link>
         </div>
       </header>

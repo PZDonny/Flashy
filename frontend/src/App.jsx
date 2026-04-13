@@ -7,6 +7,7 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import ViewSet from "./pages/ViewSet";
 import Quiz from "./pages/Quiz";
+import QuizHistory from "./pages/QuizHistory";
 import SetEditor from "./pages/SetEditor";
 import ProtectedAuthRoute from "./components/ProtectedAuthRoute";
 
@@ -25,6 +26,7 @@ function App() {
             <Route path="/edit-set/:setId?" element={<SetEditor />} />
             <Route path="/sets/:setId" element={<ViewSet />} />
             <Route path="/sets/:setId/quiz" element={<Quiz />} />
+            <Route path="/sets/:setId/quiz-history" element={<QuizHistory />} />
           </Route>
         </Routes>
       </Router>

@@ -46,7 +46,7 @@
   margin-top: 20px;
 }
 
-.set-container .set-actions .btn {
+.set-container .set-actions .set-btn {
   transition: 0.2s ease;
   font-weight: 700;
   font-size: 1rem;
@@ -56,7 +56,7 @@
   margin: 5px 15px;
 }
 
-.set-container .set-actions .btn:hover {
+.set-container .set-actions .set-btn:hover {
   transform: translateY(-2px);
 }
 
@@ -74,6 +74,14 @@
   box-shadow: 0 4px 6px -1px rgba(202, 203, 255, 0.2);
 }
 
+.set-container .set-actions .history-btn {
+  background-color: #f1f6cd;
+  color: #2d3543;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 6px -1px rgba(202, 203, 255, 0.2);
+  user-select: none;
+}
+
 .set-container .set-actions .quiz-btn:hover {
   background-color: #4f46e5;
   box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3);
@@ -82,6 +90,12 @@
 .set-container .set-actions .edit-btn:hover {
   background-color: #e5e7eb;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.set-container .set-actions .history-btn:hover {
+  background-color: #e6ecb8;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
 }
 
 .card-count {
