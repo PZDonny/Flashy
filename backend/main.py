@@ -4,8 +4,8 @@ import hashlib
 import re
 import bcrypt
 import similarity
-from flask import Flask, request, jsonify, send_from_directory, Response
-from werkzeug.utils import secure_filename
+import json
+from flask import Flask, request, jsonify, Response
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, verify_jwt_in_request
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
@@ -13,8 +13,6 @@ from datetime import datetime, timedelta
 from sqlalchemy.exc import IntegrityError
 from dotenv import load_dotenv
 from PIL import Image
-from uuid import uuid4
-import json
 
 load_dotenv()
 
@@ -55,7 +53,7 @@ class Quiz(db.Model):
     set_id = db.Column(db.Integer, db.ForeignKey('flashcard_set.id'), nullable=False)
     score = db.Column(db.Integer, nullable=False)
     total_questions = db.Column(db.Integer, nullable=False)
-    taken_at = db.Column(db.DateTime, default=datetime.utcnow)
+    taken_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
 def create_app():
     app = Flask(__name__)
@@ -343,17 +341,9 @@ def create_app():
         user_answer = data.get('answer')
 
         if card.is_exact:
-            is_match = definition.strip().lower() == user_answer.strip().lower()
-            if is_match:
-                result = 'Correct'
-                result_class = 'correct'
-                score = 1.0
-            else:
-                result = 'Incorrect'
-                result_class = 'incorrect' 
-                score = -2.0
+            result, score, result_class = similarity.is_string(definition, user_answer)
         else:
-            result, score, result_class = similarity.is_similar(definition, user_answer)        
+            result, score, result_class = similarity.is_semantic(definition, user_answer)        
         return jsonify({
             'result_label': result,
             'score': score,
