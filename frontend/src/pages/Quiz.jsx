@@ -4,6 +4,7 @@ import "../styles/Quiz.css";
 import { api } from "../api";
 import TermImage from "../components/TermImage";
 import SpeechButton from "../components/SpeechButton";
+import BackButton from "../components/BackButton";
 
 export default function Quiz() {
   const { setId } = useParams();
@@ -73,26 +74,28 @@ export default function Quiz() {
   return (
     <div className="quiz-container">
       <header className="quiz-header">
-        <Link to={`/sets/${setId}`} className="back">
-          ← Back to Set
-        </Link>
+        <BackButton text="Back to Set" to={`/sets/${setId}`} />
         <h1>{cardsetData ? cardsetData.title : "Loading..."}</h1>
-        <h2>
-          Question {questionIndex + 1} of {cardsetData?.cards.length || 0}
-        </h2>
+        <div class="question-data">
+          <div>
+            <h2>
+              Question {questionIndex + 1} of {cardsetData?.cards.length || 0}
+            </h2>
+          </div>
 
-        <div
-          className={`exact-container ${
-            cardsetData && cardsetData.cards[questionIndex].is_exact
-              ? "exact"
-              : ""
-          }`}
-        >
-          <span>
-            {cardsetData && cardsetData.cards[questionIndex].is_exact
-              ? "Exact Match"
-              : "Paraphrasable"}
-          </span>
+          <div
+            className={`exact-container ${
+              cardsetData && cardsetData.cards[questionIndex].is_exact
+                ? "exact"
+                : ""
+            }`}
+          >
+            <span>
+              {cardsetData && cardsetData.cards[questionIndex].is_exact
+                ? "Exact Match"
+                : "Paraphrasable"}
+            </span>
+          </div>
         </div>
       </header>
 
