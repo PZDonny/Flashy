@@ -42,9 +42,9 @@ export default function SetEditor() {
                 isExact: c.is_exact,
                 image: c.image_url
                   ? {
-                      image: null,
-                      exists: true,
-                    }
+                    image: null,
+                    exists: true,
+                  }
                   : null,
               }))
             );
@@ -177,7 +177,7 @@ export default function SetEditor() {
                       src={URL.createObjectURL(card.image.image)}
                       alt={card.term}
                       className="image-preview"
-                    />
+                    ></img>
                   )}
                   {card.image?.exists && !card.image.image && (
                     <img
