@@ -34,7 +34,7 @@
   margin: 0;
 }
 
-.question-data{
+.question-data {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -75,7 +75,7 @@
   border: 1px solid #e9ecef;
 }
 
-.question-card .define{
+.question-card .define {
   font-size: 1.8rem;
   font-weight: bold;
 }
@@ -87,7 +87,7 @@
   gap: 1.2rem;
 }
 
-.question-term-container{
+.question-term-container {
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -196,6 +196,78 @@
   background-color: #218838;
 }
 
+.quiz-completed-msg {
+  background: #007bff;
+  color: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 1.2rem;
+  margin: 2rem 0;
+}
+
+.quiz-setup {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  padding: 2rem 1.5rem;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  text-align: center;
+  animation: slideIn 0.25s ease-out;
+}
+
+.quiz-setup h1 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 0.5rem;
+}
+
+.quiz-setup label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #444;
+  letter-spacing: 0.05em;
+}
+
+.quiz-setup input[type="number"] {
+  width: 100%;
+  padding: 14px 18px;
+  border: 2px solid #eee;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  transition: all 0.2s;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.quiz-setup input[type="number"]:focus {
+  outline: none;
+  border-color: #007bff;
+  background-color: #fff;
+}
+
+.start-btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  background-color: #007bff;
+  color: white;
+  transition: all 0.2s;
+}
+
+.start-btn:hover {
+  background-color: #0056b3;
+  transform: translateY(-2px);
+}
+
 /* Animations */
 @keyframes slideIn {
   from {
@@ -206,15 +278,4 @@
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-.quiz-completed-msg {
-  background: #007bff;
-  color: white;
-  padding: 1.5rem;
-  border-radius: 12px;
-  text-align: center;
-  font-weight: 700;
-  font-size: 1.2rem;
-  margin: 2rem 0;
 }

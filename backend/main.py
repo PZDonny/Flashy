@@ -240,6 +240,30 @@ def create_app():
                 'description': s.description,
                 'is_starred': s.is_starred
             } for s in sets]), 200
+        
+    
+    def card_json(card) -> dict:
+        return {
+            'id': card.id,
+            'term': card.term,
+            'definition': card.definition,
+            'is_exact': card.is_exact,
+            'image_url': f'/api/flashcards/{card.id}/image' if card.image else None
+        }
+
+
+    @app.route('/api/sets/<int:id>/info', methods=['GET'])
+    @jwt_required(optional=True)
+    def flashcard_set_info(id):
+        flashcard_set = FlashcardSet.query.filter_by(id=id).first()
+
+        if not flashcard_set:
+            return jsonify({"msg": "Set not found"}), 404
+        
+        return jsonify({
+                'title': flashcard_set.title,
+                'cards_total': Flashcard.query.filter_by(set_id=id).count()
+        }), 200
     
     @app.route('/api/sets/<int:id>', methods=['GET', 'PUT', 'DELETE', 'PATCH'])
     @jwt_required(optional=True)
@@ -254,13 +278,7 @@ def create_app():
             return jsonify({
                 'title': flashcard_set.title,
                 'description': flashcard_set.description,
-                'cards': [{
-                    'id': c.id,
-                    'term': c.term,
-                    'definition': c.definition,
-                    'is_exact': c.is_exact,
-                    'image_url': f'/api/flashcards/{c.id}/image' if c.image else None
-                } for c in cards]
+                'cards': [card_json(c) for c in cards]
             }), 200
 
         verify_jwt_in_request()
@@ -351,7 +369,7 @@ def create_app():
         
         history = (
             Quiz.query
-                .filter_by(set_id=id, user_id=current_user)
+                .filter_by(set_id=id)
                 .order_by(Quiz.taken_at.desc())
                 .limit(10)
                 .all()
@@ -371,18 +389,19 @@ def create_app():
     @jwt_required()
     def quiz_answers(id):
         current_user = int(get_jwt_identity())
-        quiz = Quiz.query.filter_by(id=id, user_id=current_user).first()
+        quiz = Quiz.query.filter_by(id=id).first()
         if not quiz:
             return jsonify({"msg": "Quiz not found"}), 404
         
         answers = QuizAnswer.query.filter_by(quiz_id=id).all()
-
         card_ids = [a.card_id for a in answers]
-        card_dict = {card.id: card for card in cards}
 
         cards = Flashcard.query.filter(
             Flashcard.id.in_(card_ids)
         ).all()
+
+        
+        card_dict = {card.id: card for card in cards}
 
         answer_dicts = []
         for answer in answers:
@@ -402,17 +421,33 @@ def create_app():
         
 
 
-    @app.route('/api/quiz_session/start', methods=['POST'])
+    @app.route('/api/quiz_session/start', methods=['GET'])
     @jwt_required()
     def start_quiz():
         current_user = int(get_jwt_identity())
-        data = request.get_json()
-        set_id = data.get('set_id')
+
+        set_id = request.args.get("set_id")
+        flashcard_set = FlashcardSet.query.filter_by(id=set_id).first()
+        if not flashcard_set:
+            return jsonify({"msg": "Set not found"}), 404
+
+        max_questions = request.args.get("max", default=10, type=int)
         
         quiz_session_id = quizsession.create_session(current_user, set_id)
+        cards = (Flashcard.query
+                 .filter_by(set_id=set_id)
+                 .order_by(db.func.random())
+                 .limit(max_questions)
+                 .all())
+        
+        if not cards:
+            return jsonify({"msg": "Failed to get cards from set"}),
 
         return jsonify({
-            "quiz_session_id": quiz_session_id
+            'title': flashcard_set.title,
+            'description': flashcard_set.description,
+            'quiz_session_id': quiz_session_id,
+            'cards': [card_json(c) for c in cards]
         }), 201
 
     @app.route('/api/quiz_session/<string:quiz_session_id>/answer', methods=['POST'])

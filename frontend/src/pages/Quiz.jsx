@@ -8,8 +8,10 @@ import BackButton from "../components/BackButton";
 
 export default function Quiz() {
   const { setId } = useParams();
-  const started = useRef(false);
+  const [quizStarted, setQuizStarted] = useState(false);
+  const [max, setMax] = useState(10);
   const [questionIndex, setQuestionIndex] = useState(0);
+  const [quizCards, setQuizCards] = useState([]);
   const [cardsetData, setCardsetData] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [result, setResult] = useState(false);
@@ -22,29 +24,9 @@ export default function Quiz() {
   const [quizSessionId, setQuizSessionId] = useState(null);
 
   useEffect(() => {
-    if (!setId || started.current) return;
-
-    started.current = true;
-
-    const startSession = async () => {
-      try {
-        const data = await api.post(`/quiz_session/start`, {
-          set_id: setId,
-        });
-
-        setQuizSessionId(data.quiz_session_id);
-      } catch (err) {
-        console.error("Failed to start quiz session:", err);
-      }
-    };
-
-    startSession();
-  }, [setId]);
-
-  useEffect(() => {
     const fetchSetDetails = async () => {
       try {
-        const data = await api.get(`/sets/${setId}`);
+        const data = await api.get(`/sets/${setId}/info`);
         setCardsetData(data);
       } catch (err) {
         console.error("Error getting set:", err);
@@ -53,11 +35,31 @@ export default function Quiz() {
     fetchSetDetails();
   }, [setId]);
 
+  useEffect(() => {
+    if (cardsetData) {
+      setMax(cardsetData.cards_total);
+    }
+  }, [cardsetData]);
+
+  const startQuiz = async () => {
+    try {
+      const data = await api.get(
+        `/quiz_session/start?set_id=${setId}&max=${max}`
+      );
+
+      setQuizSessionId(data.quiz_session_id);
+      setQuizCards(data.cards);
+      setQuizStarted(true);
+    } catch (err) {
+      console.error("Failed to start quiz session:", err);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (result) {
-      if (questionIndex === cardsetData.cards.length - 1) {
+      if (questionIndex === quizCards.length - 1) {
         setQuizCompleted(true);
         await api.post(`/quiz_session/${quizSessionId}/submit`);
 
@@ -74,7 +76,7 @@ export default function Quiz() {
     }
 
     const userAnswer = e.target.answer.value;
-    const currentCard = cardsetData.cards[questionIndex];
+    const currentCard = quizCards[questionIndex];
 
     if (isSubmitting) return;
     setUserAnswer(userAnswer);
@@ -99,97 +101,135 @@ export default function Quiz() {
     <div className="quiz-container">
       <header className="quiz-header">
         <BackButton text="Back to Set" to={`/sets/${setId}`} />
-        <h1>{cardsetData ? cardsetData.title : "Loading..."}</h1>
-        <div className="question-data">
-          <div>
-            <h2>
-              Question {questionIndex + 1} of {cardsetData?.cards.length || 0}
-            </h2>
-          </div>
 
-          <div
-            className={`exact-container ${
-              cardsetData && cardsetData.cards[questionIndex].is_exact
-                ? "exact"
-                : ""
-            }`}
-          >
-            <span>
-              {cardsetData && cardsetData.cards[questionIndex].is_exact
-                ? "Exact Match"
-                : "Paraphrasable"}
-            </span>
-          </div>
-        </div>
-      </header>
-
-      {quizCompleted && (
-        <div className="quiz-completed-msg">Quiz Completed, Submitting ✔</div>
-      )}
-
-      {!quizCompleted && (
-        <div className="question-card">
-          <p className="define">Define</p>
-          <hr></hr>
-          <div className="question-info">
-            {cardsetData && cardsetData.cards[questionIndex]?.image_url && (
-              <TermImage card={cardsetData.cards[questionIndex]} />
-            )}
-            <div className="question-term-container">
-              <p className="question-term">
-                {cardsetData ? cardsetData.cards[questionIndex].term : "..."}
-              </p>
-              <SpeechButton
-                text={cardsetData ? cardsetData.cards[questionIndex].term : ""}
-              />
-            </div>
-          </div>
-        </div>
-      )}
-
-      {result && (
-        <div className={`result-container ${resultClass}`}>
-          <strong>{result}</strong>
-          <hr></hr>
-          <span className="answer-feedback-label">YOUR ANSWER:</span>
-          <p>{userAnswer}</p>
-
-          <span className="answer-feedback-label">CORRECT ANSWER:</span>
-          <p>{correctAnswer}</p>
-        </div>
-      )}
-
-      <form className="quiz-form" onSubmit={handleSubmit}>
-        {!result && !quizCompleted && (
+        {!quizStarted ? (
+          <h1>Quiz Options</h1>
+        ) : (
           <>
-            <label htmlFor="answer">YOUR ANSWER</label>
-            <input
-              type="text"
-              id="answer"
-              name="answer"
-              placeholder="Enter your answer here"
-              autoComplete="off"
-              required
-            />
+            <h1>{cardsetData ? cardsetData.title : "Loading..."}</h1>
+
+            <div className="question-data">
+              <div>
+                <h2>
+                  Question {questionIndex + 1} of{" "}
+                  {quizCards?.length || 0}
+                </h2>
+              </div>
+
+              <div
+                className={`exact-container ${
+                  cardsetData && quizCards[questionIndex].is_exact
+                    ? "exact"
+                    : ""
+                }`}
+              >
+                <span>
+                  {cardsetData && quizCards[questionIndex].is_exact
+                    ? "Exact Match"
+                    : "Paraphrasable"}
+                </span>
+              </div>
+            </div>
           </>
         )}
+      </header>
 
-        {!quizCompleted && (
-          <button
-            type="submit"
-            className={`check-btn ${!result ? "check" : "next"}`}
-            disabled={isSubmitting}
-          >
-            {isSubmitting
-              ? "Checking..."
-              : !result
-              ? "Check Answer"
-              : questionIndex === cardsetData.cards.length - 1
-              ? "Finish"
-              : "Next Question"}
+      {!quizStarted ? (
+        <div className="quiz-setup">
+          <label htmlFor="max">Maximum Questions: </label>
+
+          <input
+            id="max"
+            type="number"
+            min={1}
+            max={quizCards?.length || 10}
+            value={max}
+            onChange={(e) => setMax(Number(e.target.value))}
+          />
+
+          <button onClick={startQuiz} className="start-btn">
+            Start Quiz
           </button>
-        )}
-      </form>
+        </div>
+      ) : (
+        <>
+          {quizCompleted && (
+            <div className="quiz-completed-msg">
+              Quiz Completed, Submitting ✔
+            </div>
+          )}
+
+          {!quizCompleted && (
+            <div className="question-card">
+              <p className="define">Define</p>
+              <hr />
+
+              <div className="question-info">
+                {cardsetData && quizCards[questionIndex]?.image_url && (
+                  <TermImage card={quizCards[questionIndex]} />
+                )}
+
+                <div className="question-term-container">
+                  <p className="question-term">
+                    {cardsetData
+                      ? quizCards[questionIndex].term
+                      : "..."}
+                  </p>
+                  <SpeechButton
+                    text={
+                      cardsetData ? quizCards[questionIndex].term : ""
+                    }
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {result && (
+            <div className={`result-container ${resultClass}`}>
+              <strong>{result}</strong>
+              <hr />
+
+              <span className="answer-feedback-label">YOUR ANSWER:</span>
+              <p>{userAnswer}</p>
+
+              <span className="answer-feedback-label">CORRECT ANSWER:</span>
+              <p>{correctAnswer}</p>
+            </div>
+          )}
+
+          <form className="quiz-form" onSubmit={handleSubmit}>
+            {!result && !quizCompleted && (
+              <>
+                <label htmlFor="answer">YOUR ANSWER</label>
+                <input
+                  type="text"
+                  id="answer"
+                  name="answer"
+                  autoComplete="off"
+                  required
+                />
+              </>
+            )}
+
+            {!quizCompleted && (
+              <button
+                type="submit"
+                className={`check-btn ${!result ? "check" : "next"}`}
+                disabled={isSubmitting}
+              >
+                {isSubmitting
+                  ? "Checking..."
+                  : !result
+                  ? "Check Answer"
+                  : questionIndex === quizCards.length - 1
+                  ? "Finish"
+                  : "Next Question"}
+              </button>
+            )}
+          </form>
+        </>
+      )}
     </div>
   );
 }
