@@ -268,7 +268,6 @@
   transform: translateY(-2px);
 }
 
-/* Animations */
 @keyframes slideIn {
   from {
     opacity: 0;
