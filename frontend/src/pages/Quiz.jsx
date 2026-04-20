@@ -19,6 +19,7 @@ export default function Quiz() {
   const [correctAnswer, setCorrectAnswer] = useState("");
   const [userAnswer, setUserAnswer] = useState("");
   const [quizCompleted, setQuizCompleted] = useState(false);
+  const progress = ((questionIndex) / quizCards.length) * 100;
   const navigate = useNavigate();
 
   const [quizSessionId, setQuizSessionId] = useState(null);
@@ -111,8 +112,7 @@ export default function Quiz() {
             <div className="question-data">
               <div>
                 <h2>
-                  Question {questionIndex + 1} of{" "}
-                  {quizCards?.length || 0}
+                  Question {questionIndex + 1} of {quizCards?.length || 0}
                 </h2>
               </div>
 
@@ -129,6 +129,9 @@ export default function Quiz() {
                     : "Paraphrasable"}
                 </span>
               </div>
+            </div>
+            <div className="progress-container">
+              <div className="progress-bar" style={{ width: `${quizCompleted ? 100 : progress}%` }} />
             </div>
           </>
         )}
@@ -171,14 +174,10 @@ export default function Quiz() {
 
                 <div className="question-term-container">
                   <p className="question-term">
-                    {cardsetData
-                      ? quizCards[questionIndex].term
-                      : "..."}
+                    {cardsetData ? quizCards[questionIndex].term : "..."}
                   </p>
                   <SpeechButton
-                    text={
-                      cardsetData ? quizCards[questionIndex].term : ""
-                    }
+                    text={cardsetData ? quizCards[questionIndex].term : ""}
                   />
                 </div>
               </div>
