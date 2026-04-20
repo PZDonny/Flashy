@@ -42,9 +42,9 @@ export default function SetEditor() {
                 isExact: c.is_exact,
                 image: c.image_url
                   ? {
-                    image: null,
-                    exists: true,
-                  }
+                      image: null,
+                      exists: true,
+                    }
                   : null,
               }))
             );
@@ -83,6 +83,20 @@ export default function SetEditor() {
     );
   };
 
+  const handleRemoveImage = (cardId) => {
+    setCards((prev) =>
+      prev.map((card) =>
+        card.id === cardId
+          ? {
+              ...card,
+              image: null,
+              imageDeleted: true,
+            }
+          : card
+      )
+    );
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -90,24 +104,20 @@ export default function SetEditor() {
     formData.append("title", title);
     formData.append("description", description);
 
-    const newCards = cards.map((card) => {
-      const cleaned = {
-        id: card.id,
-        term: card.term,
-        definition: card.definition,
-        isExact: card.isExact,
-      };
-
-      return cleaned;
-    });
+    const newCards = cards.map((card) => ({
+      id: card.id,
+      term: card.term,
+      definition: card.definition,
+      isExact: card.isExact,
+      imageDeleted: card.imageDeleted || false,
+    }));
 
     formData.append("cards", JSON.stringify(newCards));
 
     cards.forEach((card) => {
       if (card.image) {
-        const image = card.image.image;
-        if (image) {
-          formData.append(`image_${card.id}`, image);
+        if (card.image?.image) {
+          formData.append(`image_${card.id}`, card.image.image);
         }
       }
     });
@@ -172,20 +182,44 @@ export default function SetEditor() {
               <div className="card-row-inputs">
                 <div className="input-field image-input">
                   <label>IMAGE</label>
+
                   {card.image?.image && (
-                    <img
-                      src={URL.createObjectURL(card.image.image)}
-                      alt={card.term}
-                      className="image-preview"
-                    ></img>
+                    <div className="image-container">
+                      <img
+                        src={URL.createObjectURL(card.image.image)}
+                        alt={card.term}
+                        className="image-preview"
+                      />
+
+                      <button
+                        type="button"
+                        className="remove-image-btn"
+                        onClick={() => handleRemoveImage(card.id)}
+                      >
+                        ×
+                      </button>
+                    </div>
                   )}
-                  {card.image?.exists && !card.image.image && (
-                    <img
-                      src={getImageURL(card.id)}
-                      alt={card.term}
-                      className="image-preview"
-                    />
-                  )}
+
+                  {card.image?.exists &&
+                    !card.image?.image &&
+                    !card.imageDeleted && (
+                      <div className="image-container">
+                        <img
+                          src={getImageURL(card.id)}
+                          alt={card.term}
+                          className="image-preview"
+                        />
+
+                        <button
+                          type="button"
+                          className="remove-image-btn"
+                          onClick={() => handleRemoveImage(card.id)}
+                        >
+                          ×
+                        </button>
+                      </div>
+                    )}
 
                   <input
                     id={`file-${card.id}`}

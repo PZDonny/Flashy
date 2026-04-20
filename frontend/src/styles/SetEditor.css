@@ -167,12 +167,37 @@
   width: 80px;
   height: 80px;
   object-fit: fill;
-  border-radius: 6px;
+  border-radius: 8px;
   border: 1px solid #ddd;
+  display: block;
 }
 
-.image-preview:hover{
+.image-container {
+  position: relative;
+  display: inline-block;
+  line-height: 0;
+}
+
+.image-container .remove-image-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  transform: translate(50%, -25%);
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: none;
+  transition-duration: 0.2s;
+  background-color: rgb(206, 205, 205);
+  opacity: 0.8;
+  font-size: 1rem;
+}
+
+.image-container .remove-image-btn:hover {
+  transform: translate(50%, -25%) scale(1.1);
   cursor: pointer;
+  background: rgba(220, 0, 0, 0.4);
+  opacity: 1;
 }
 
 .file-btn {

@@ -315,10 +315,14 @@ def create_app():
                     card.term = card_item.get('term', card.term)
                     card.definition = card_item.get('definition', card.definition)
                     card.is_exact = card_item.get('isExact', card.is_exact)
-                    stringID = str(card_id)
-                    if stringID in image_bytes_dict:
-                        app.logger.info(f"Updating image for card {card_id}: {image_bytes_dict[stringID]}")
-                        card.image = image_bytes_dict.get(stringID, card.image)
+
+                    if card_item.get("imageDeleted"):
+                        card.image = None
+                    else:
+                        stringID = str(card_id)
+                        if stringID in image_bytes_dict:
+                            app.logger.info(f"Updating image for card {card_id}: {image_bytes_dict[stringID]}")
+                            card.image = image_bytes_dict.get(stringID, card.image)
                 else: #New Card
                     new_card = Flashcard(
                         set_id=id,
