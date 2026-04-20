@@ -367,6 +367,10 @@ def create_app():
         if not flashcard_set:
             return jsonify({"msg": "Set not found"}), 404
         
+        total_quizzes = Quiz.query.filter_by(
+            set_id=id,
+        ).count()
+
         history = (
             Quiz.query
                 .filter_by(set_id=id)
@@ -375,7 +379,7 @@ def create_app():
                 .all()
         )
 
-        return jsonify([
+        return jsonify({"quizzes": [
             {
                 "id": quiz.id,
                 "score": quiz.score,
@@ -383,7 +387,7 @@ def create_app():
                 "taken_at": quiz.taken_at
             }
             for quiz in history
-        ]), 200
+        ], 'total_quizzes': total_quizzes}), 200
     
     @app.route('/api/quiz/<int:id>/answers')
     @jwt_required()
@@ -408,14 +412,11 @@ def create_app():
             card = card_dict.get(answer.card_id)
             if not card:
                 continue
-            answer_dicts.append(
-                {
-                    "id": answer.id,
-                    "correct_answer": card.definition,
-                    "user_answer": answer.user_answer,
-                    "is_correct": answer.is_correct
-                }
-            )
+            answer_json = card_json(card)
+            answer_json['id'] = answer.id
+            answer_json['user_answer'] = answer.user_answer
+            answer_json['is_correct'] = answer.is_correct
+            answer_dicts.append(answer_json)
 
         return jsonify(answer_dicts), 200
         
