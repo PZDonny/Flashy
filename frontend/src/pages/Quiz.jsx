@@ -28,7 +28,7 @@ export default function Quiz() {
 
     const startSession = async () => {
       try {
-        const data = await api.post(`/quiz/start`, {
+        const data = await api.post(`/quiz_session/start`, {
           set_id: setId,
         });
 
@@ -59,7 +59,7 @@ export default function Quiz() {
     if (result) {
       if (questionIndex === cardsetData.cards.length - 1) {
         setQuizCompleted(true);
-        await api.post(`/quiz/${quizSessionId}/submit`);
+        await api.post(`/quiz_session/${quizSessionId}/submit`);
 
         setTimeout(() => {
           navigate(`/sets/${setId}`);
@@ -80,7 +80,7 @@ export default function Quiz() {
     setUserAnswer(userAnswer);
     try {
       setIsSubmitting(true);
-      const data = await api.post(`/quiz/${quizSessionId}/answer`, {
+      const data = await api.post(`/quiz_session/${quizSessionId}/answer`, {
         card_id: currentCard.id,
         answer: userAnswer,
       });

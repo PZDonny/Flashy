@@ -244,16 +244,16 @@ def create_app():
     @app.route('/api/sets/<int:id>', methods=['GET', 'PUT', 'DELETE', 'PATCH'])
     @jwt_required(optional=True)
     def flashcard_set(id):
-        set = FlashcardSet.query.filter_by(id=id).first()
+        flashcard_set = FlashcardSet.query.filter_by(id=id).first()
 
-        if not set:
+        if not flashcard_set:
             return jsonify({"msg": "Set not found"}), 404
         
         if request.method == 'GET':
             cards = Flashcard.query.filter_by(set_id=id).all()
             return jsonify({
-                'title': set.title,
-                'description': set.description,
+                'title': flashcard_set.title,
+                'description': flashcard_set.description,
                 'cards': [{
                     'id': c.id,
                     'term': c.term,
@@ -265,13 +265,13 @@ def create_app():
 
         verify_jwt_in_request()
         current_user = int(get_jwt_identity())
-        if set.user_id != current_user:
+        if flashcard_set.user_id != current_user:
             return jsonify({'msg': 'Invalid user'}), 401
         
 
         if request.method == 'DELETE':    
             try:
-                db.session.delete(set)
+                db.session.delete(flashcard_set)
                 db.session.commit()
                 db.session.flush()
                 
@@ -289,15 +289,15 @@ def create_app():
             try:
                 data = request.get_json()
                 is_starred = data.get('is_starred')
-                set.is_starred = is_starred
+                flashcard_set.is_starred = is_starred
                 db.session.commit()
                 return jsonify({'msg': f'Set starred set to {is_starred}'}), 200
             except:
                 return jsonify({'msg: Failed to update set starred'}), 400
             
         elif request.method == 'PUT':
-            set.title = request.form.get("title", set.title)
-            set.description = request.form.get("description", set.description)
+            flashcard_set.title = request.form.get("title", flashcard_set.title)
+            flashcard_set.description = request.form.get("description", flashcard_set.description)
 
             cards_data = request.form.get("cards", [])
             cards = json.loads(cards_data) if cards_data else []
@@ -341,7 +341,68 @@ def create_app():
             return jsonify({'msg': 'Set updated successfully'}), 200
 
 
-    @app.route('/api/quiz/start', methods=['POST'])
+    @app.route('/api/sets/<int:id>/quiz_history', methods=['GET'])
+    @jwt_required()
+    def quiz_history(id):
+        current_user = int(get_jwt_identity())
+        flashcard_set = FlashcardSet.query.filter_by(id=id).first()
+        if not flashcard_set:
+            return jsonify({"msg": "Set not found"}), 404
+        
+        history = (
+            Quiz.query
+                .filter_by(set_id=id, user_id=current_user)
+                .order_by(Quiz.taken_at.desc())
+                .limit(10)
+                .all()
+        )
+
+        return jsonify([
+            {
+                "id": quiz.id,
+                "score": quiz.score,
+                "total_questions": quiz.total_questions,
+                "taken_at": quiz.taken_at
+            }
+            for quiz in history
+        ]), 200
+    
+    @app.route('/api/quiz/<int:id>/answers')
+    @jwt_required()
+    def quiz_answers(id):
+        current_user = int(get_jwt_identity())
+        quiz = Quiz.query.filter_by(id=id, user_id=current_user).first()
+        if not quiz:
+            return jsonify({"msg": "Quiz not found"}), 404
+        
+        answers = QuizAnswer.query.filter_by(quiz_id=id).all()
+
+        card_ids = [a.card_id for a in answers]
+        card_dict = {card.id: card for card in cards}
+
+        cards = Flashcard.query.filter(
+            Flashcard.id.in_(card_ids)
+        ).all()
+
+        answer_dicts = []
+        for answer in answers:
+            card = card_dict.get(answer.card_id)
+            if not card:
+                continue
+            answer_dicts.append(
+                {
+                    "id": answer.id,
+                    "correct_answer": card.definition,
+                    "user_answer": answer.user_answer,
+                    "is_correct": answer.is_correct
+                }
+            )
+
+        return jsonify(answer_dicts), 200
+        
+
+
+    @app.route('/api/quiz_session/start', methods=['POST'])
     @jwt_required()
     def start_quiz():
         current_user = int(get_jwt_identity())
@@ -354,7 +415,7 @@ def create_app():
             "quiz_session_id": quiz_session_id
         }), 201
 
-    @app.route('/api/quiz/<string:quiz_session_id>/answer', methods=['POST'])
+    @app.route('/api/quiz_session/<string:quiz_session_id>/answer', methods=['POST'])
     @jwt_required()
     def check_answer(quiz_session_id):
         current_user = int(get_jwt_identity())
@@ -391,7 +452,7 @@ def create_app():
         }), 200
     
 
-    @app.route('/api/quiz/<string:quiz_session_id>/submit', methods=['POST'])
+    @app.route('/api/quiz_session/<string:quiz_session_id>/submit', methods=['POST'])
     @jwt_required()
     def submit_quiz(quiz_session_id):
         try:
