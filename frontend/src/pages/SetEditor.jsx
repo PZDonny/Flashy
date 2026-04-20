@@ -12,7 +12,7 @@ export default function SetEditor() {
 
   /*if there's a set id passed in query params, then the set is being edited, not created */
   const { setId } = useParams();
-  const [isEditMode, setIsEditMode] = useState(!!setId);
+  const isEditMode = !!setId;
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("A new set");
   const [cards, setCards] = useState([
