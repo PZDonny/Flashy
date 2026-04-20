@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import "../styles/Quiz.css";
 import { api } from "../api";
@@ -8,6 +8,7 @@ import BackButton from "../components/BackButton";
 
 export default function Quiz() {
   const { setId } = useParams();
+  const started = useRef(false);
   const [questionIndex, setQuestionIndex] = useState(0);
   const [cardsetData, setCardsetData] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -17,6 +18,28 @@ export default function Quiz() {
   const [userAnswer, setUserAnswer] = useState("");
   const [quizCompleted, setQuizCompleted] = useState(false);
   const navigate = useNavigate();
+
+  const [quizSessionId, setQuizSessionId] = useState(null);
+
+  useEffect(() => {
+    if (!setId || started.current) return;
+
+    started.current = true;
+
+    const startSession = async () => {
+      try {
+        const data = await api.post(`/quiz/start`, {
+          set_id: setId,
+        });
+
+        setQuizSessionId(data.quiz_session_id);
+      } catch (err) {
+        console.error("Failed to start quiz session:", err);
+      }
+    };
+
+    startSession();
+  }, [setId]);
 
   useEffect(() => {
     const fetchSetDetails = async () => {
@@ -36,14 +59,15 @@ export default function Quiz() {
     if (result) {
       if (questionIndex === cardsetData.cards.length - 1) {
         setQuizCompleted(true);
-        //submit to backend
+        await api.post(`/quiz/${quizSessionId}/submit`);
+
         setTimeout(() => {
           navigate(`/sets/${setId}`);
-        }, 2000);
+        }, 1500);
 
         return;
       }
-      setResult(undefined);
+      setResult(null);
       setCorrectAnswer("");
       setQuestionIndex((prev) => prev + 1);
       return;
@@ -56,7 +80,7 @@ export default function Quiz() {
     setUserAnswer(userAnswer);
     try {
       setIsSubmitting(true);
-      const data = await api.post("/check_answer", {
+      const data = await api.post(`/quiz/${quizSessionId}/answer`, {
         card_id: currentCard.id,
         answer: userAnswer,
       });
@@ -100,7 +124,7 @@ export default function Quiz() {
       </header>
 
       {quizCompleted && (
-        <div className="quiz-completed-msg">Quiz Completed ✔</div>
+        <div className="quiz-completed-msg">Quiz Completed, Submitting ✔</div>
       )}
 
       {!quizCompleted && (

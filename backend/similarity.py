@@ -27,12 +27,13 @@ def is_semantic(term_definition, user_answer):
     """
     For checking semantic (meaning) similarity between the user input and a definition
     """
+    
     term_definition = _sanitize_text(term_definition)
     user_answer = _sanitize_text(user_answer)
 
     #Check exact match first
     if term_definition == user_answer:
-        return ("Correct. 100.00% Accuracy", 1.0, "correct")
+        return ("Correct. 100.00% Accuracy", 1.0, "correct", True)
 
     #Scores
     typo_score = fuzz.ratio(user_answer, term_definition) / 100    
@@ -41,20 +42,20 @@ def is_semantic(term_definition, user_answer):
 
     #Correct (Typo Checked)
     if typo_score >= MIN_CORRECT_STRING_SIMILARITY_THRESHOLD:
-        return (f"Correct. {typo_score*100:.2f}% Accuracy", typo_score, "correct")
+        return (f"Correct. {typo_score*100:.2f}% Accuracy", typo_score, "correct", True)
 
     #Correct (Semantic Checked)
     if semantic_score >= MIN_CORRECT_SEMANTIC_SIMILARITY_THRESHOLD and typo_score >= MIN_CLOSE_TYPO_MEANING_THRESHOLD:
-        return (f"Correct. {semantic_score*100:.2f}% Accuracy", semantic_score, "correct")
+        return (f"Correct. {semantic_score*100:.2f}% Accuracy", semantic_score, "correct", True)
 
 
     score = max(typo_score, semantic_score)
     #Close
     if typo_score >= MIN_CLOSE_TYPO_MEANING_THRESHOLD or semantic_score >= MIN_CLOSE_SEMANTIC_SIMILARITY_THRESHOLD:
-        return (f"Close. {score*100:.2f}% Accuracy", score, "close")
+        return (f"Close. {score*100:.2f}% Accuracy", score, "close", True)
 
     #Incorrect
-    return (f"Incorrect. {score*100:.2f}% Accuracy", score, "incorrect")
+    return (f"Incorrect. {score*100:.2f}% Accuracy", score, "incorrect", False)
 
 def is_string(term_definition, user_answer):
     """
@@ -70,12 +71,15 @@ def is_string(term_definition, user_answer):
         result_label = 'Correct'
         result_class = 'correct'
         score = 1.0
+        correct = True
     else:
         score = fuzz.ratio(user_answer, term_definition)
         if score >= MIN_CLOSE_TYPO_SPELLING_THRESHOLD:
             result_label = f'Close. {score:.2f}% Accuracy'
             result_class = 'close' 
+            correct = True
         else:
             result_label = 'Incorrect'
             result_class = 'incorrect' 
-    return (result_label, score, result_class)
+            correct = False
+    return (result_label, score, result_class, correct)

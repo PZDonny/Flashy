@@ -5,6 +5,7 @@ import re
 import bcrypt
 import similarity
 import json
+import quizsession
 from flask import Flask, request, jsonify, Response
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, verify_jwt_in_request
 from flask_cors import CORS
@@ -13,12 +14,14 @@ from datetime import datetime, timedelta
 from sqlalchemy.exc import IntegrityError
 from dotenv import load_dotenv
 from PIL import Image
+import redis_client
 
 load_dotenv()
 
 SECRET_KEY = os.getenv('JWT_SECRET_KEY')
 DB_URI = os.getenv('SQLALCHEMY_DATABASE_URI')
 DEBUG = os.getenv('DEBUG', 'False').lower()
+REDIS_PORT = int(os.getenv('REDIS_PORT', 6379))
 
 ALLOWED_IMAGE_EXTENSIONS = {"png", "jpg", "jpeg", "webp"}
 
@@ -49,11 +52,10 @@ class Flashcard(db.Model):
 
 class Quiz(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     set_id = db.Column(db.Integer, db.ForeignKey('flashcard_set.id'), nullable=False)
     score = db.Column(db.Integer, nullable=False)
     total_questions = db.Column(db.Integer, nullable=False)
-    taken_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    taken_at = db.Column(db.DateTime, nullable=False)
 
 class QuizAnswer(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -69,10 +71,15 @@ def create_app():
     app.config['JWT_SECRET_KEY'] = SECRET_KEY
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
 
+    
     CORS(app)
     jwt = JWTManager(app)
+    
 
     db.init_app(app)
+
+
+    redis_client.start(REDIS_PORT)
 
     with app.app_context():        
         db.create_all()
@@ -329,14 +336,30 @@ def create_app():
             db.session.commit()
             return jsonify({'msg': 'Set updated successfully'}), 200
 
-    @app.route('/api/sets/<int:id>/quiz', methods=['POST'])
-    @jwt_required()
-    def quiz(id):
-        pass
 
-    @app.route('/api/check_answer', methods=['POST'])
+    @app.route('/api/quiz/start', methods=['POST'])
     @jwt_required()
-    def check_answer():
+    def start_quiz():
+        current_user = int(get_jwt_identity())
+        data = request.get_json()
+        set_id = data.get('set_id')
+        
+        quiz_session_id = quizsession.create_session(current_user, set_id)
+
+        return jsonify({
+            "quiz_session_id": quiz_session_id
+        }), 201
+
+    @app.route('/api/quiz/<string:quiz_session_id>/answer', methods=['POST'])
+    @jwt_required()
+    def check_answer(quiz_session_id):
+        current_user = int(get_jwt_identity())
+        if not quizsession.is_user_session(quiz_session_id, current_user):
+            return jsonify({
+                'msg': 'User has no quiz under the given session id'
+            }, 403)
+
+
         data = request.get_json()
         card_id = data.get('card_id')
 
@@ -348,15 +371,44 @@ def create_app():
         user_answer = data.get('answer')
 
         if card.is_exact:
-            result, score, result_class = similarity.is_string(definition, user_answer)
+            result, score, result_class, correct = similarity.is_string(definition, user_answer)
         else:
-            result, score, result_class = similarity.is_semantic(definition, user_answer)        
+            result, score, result_class, correct = similarity.is_semantic(definition, user_answer)
+
+        
+        quizsession.add_answer(quiz_session_id, card_id, user_answer, correct)
+
+
         return jsonify({
             'result_label': result,
             'score': score,
             'correct_answer': definition,
             'result_class': result_class
         }), 200
+    
+
+    @app.route('/api/quiz/<string:quiz_session_id>/submit', methods=['POST'])
+    @jwt_required()
+    def submit_quiz(quiz_session_id):
+        try:
+            quiz: Quiz = quizsession.create_quiz_db_object(quiz_session_id)
+            db.session.add(quiz)
+            db.session.commit()
+
+            quiz_id = quiz.id
+            answers = quizsession.create_answer_db_objects(quiz_session_id, quiz_id)
+            for answer in answers:
+                db.session.add(answer)
+            db.session.commit()
+            quizsession.remove_session(quiz_session_id)
+
+            return jsonify({
+                'msg': 'Quiz submitted'
+            }), 201
+        except IntegrityError:
+            db.session.rollback()
+            return jsonify({'msg': 'Failed to submit quiz'}), 400
+        
 
     @app.route('/api/flashcards/<int:id>/image', methods=['GET'])
     def get_image(id):
