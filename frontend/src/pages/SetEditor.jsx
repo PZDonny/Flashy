@@ -139,7 +139,7 @@ export default function SetEditor() {
           {isEditMode ? "Edit flashcard set" : "Create a new flashcard set"}
         </h2>
         <div className="create-set-actions">
-          <Link to="/dashboard" className="btn cancel-btn">
+          <Link to= {isEditMode ? `/sets/${setId}` : "/dashboard"} className="btn cancel-btn">
             Cancel
           </Link>
           <button type="submit" form="set-form" className="btn save-btn">
