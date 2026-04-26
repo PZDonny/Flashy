@@ -4,7 +4,7 @@ from datetime import datetime
 import redis_client
 import json
 
-TTL = 1800 # 39 min
+TTL = 1800 # 30 min
 
 
 def get_redis_key(session_id):
