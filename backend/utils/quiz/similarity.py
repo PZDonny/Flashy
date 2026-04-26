@@ -7,14 +7,15 @@ MIN_CLOSE_SEMANTIC_SIMILARITY_THRESHOLD = 0.60
 MIN_CORRECT_STRING_SIMILARITY_THRESHOLD = 0.90
 MIN_CLOSE_TYPO_MEANING_THRESHOLD = 0.7
 MIN_CLOSE_TYPO_SPELLING_THRESHOLD = 80
+
 _model = None
 
 
 def get_model():
     global _model
     if _model is None:
-        print("Loading SentenceTransformers model...")
-        _model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
+        print('Loading SentenceTransformers model...')
+        _model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
     return _model
 
 
@@ -33,7 +34,7 @@ def is_semantic(term_definition, user_answer):
 
     #Check exact match first
     if term_definition == user_answer:
-        return ("Correct. 100.00% Accuracy", 1.0, "correct", True)
+        return ('Correct. 100.00% Accuracy', 1.0, 'correct', True)
 
     #Scores
     typo_score = fuzz.ratio(user_answer, term_definition) / 100    
@@ -42,20 +43,20 @@ def is_semantic(term_definition, user_answer):
 
     #Correct (Typo Checked)
     if typo_score >= MIN_CORRECT_STRING_SIMILARITY_THRESHOLD:
-        return (f"Correct. {typo_score*100:.2f}% Accuracy", typo_score, "correct", True)
+        return (f'Correct. {typo_score*100:.2f}% Accuracy', typo_score, 'correct', True)
 
     #Correct (Semantic Checked)
     if semantic_score >= MIN_CORRECT_SEMANTIC_SIMILARITY_THRESHOLD and typo_score >= MIN_CLOSE_TYPO_MEANING_THRESHOLD:
-        return (f"Correct. {semantic_score*100:.2f}% Accuracy", semantic_score, "correct", True)
+        return (f'Correct. {semantic_score*100:.2f}% Accuracy', semantic_score, 'correct', True)
 
 
     score = max(typo_score, semantic_score)
     #Close
     if typo_score >= MIN_CLOSE_TYPO_MEANING_THRESHOLD or semantic_score >= MIN_CLOSE_SEMANTIC_SIMILARITY_THRESHOLD:
-        return (f"Close. {score*100:.2f}% Accuracy", score, "close", True)
+        return (f'Close. {score*100:.2f}% Accuracy', score, 'close', True)
 
     #Incorrect
-    return (f"Incorrect. {score*100:.2f}% Accuracy", score, "incorrect", False)
+    return (f'Incorrect. {score*100:.2f}% Accuracy', score, 'incorrect', False)
 
 def is_string(term_definition, user_answer):
     """

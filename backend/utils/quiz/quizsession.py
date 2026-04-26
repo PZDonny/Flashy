@@ -1,5 +1,5 @@
 from uuid import uuid4
-from main import Quiz, QuizAnswer, Flashcard
+from models import Quiz, QuizAnswer, Flashcard
 from datetime import datetime
 import redis_client
 import json
@@ -7,11 +7,14 @@ import json
 TTL = 1800 # 30 min
 
 
-def get_redis_key(session_id):
+def _get_redis_key(session_id):
     return f'quiz:{session_id}'
 
 def get_session(session_id):
-    data = redis_client.client.get(get_redis_key(session_id))
+    """
+    Get a quiz session by its session id
+    """
+    data = redis_client.client.get(_get_redis_key(session_id))
     if not data:
         return None
     return json.loads(data)
@@ -30,7 +33,7 @@ def create_session(user_id, set_id) -> str:
     }
 
     redis_client.client.setex(
-        get_redis_key(session_id),
+        _get_redis_key(session_id),
         TTL,
         json.dumps(session_data)
     )
@@ -48,7 +51,7 @@ def is_user_session(session_id, user_id):
     
 
 def add_answer(session_id, card_id, user_answer, is_correct):
-    key = get_redis_key(session_id)
+    key = _get_redis_key(session_id)
 
     data = redis_client.client.get(key)
     if not data:
@@ -102,4 +105,4 @@ def create_answer_db_objects(session_id, quiz_id) -> list:
     return lyst
 
 def remove_session(session_id):
-    redis_client.client.delete(get_redis_key(session_id))
+    redis_client.client.delete(_get_redis_key(session_id))

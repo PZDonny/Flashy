@@ -3,4 +3,18 @@ services:
     image: redis:7.0.11-alpine
     ports:
       - "6379:6379"
+  db:
+    image: postgres
+    restart: always
+    shm_size: 128mb
+    ports:
+      - "5435:5432"
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: flashy
+    volumes:
+      - pg_data:/var/lib/postgresql
 
+volumes:
+  pg_data:
