@@ -16,6 +16,7 @@ class FlashcardSet(db.Model):
     description = db.Column(db.String(255), nullable=False)
     is_starred = db.Column(db.Boolean, nullable=False, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    cards = db.relationship('Flashcard', backref='flashcardset', lazy=True, cascade='all, delete-orphan')
 
 class Flashcard(db.Model):
     id = db.Column(db.Integer, primary_key=True)
