@@ -7,7 +7,7 @@ MAX_IMAGE_SIZE = (512, 512)
 class InvalidImageError(Exception):
 
     def __init__(self, message, card_id):
-        super().__init__(f"[{card_id}] {message}")
+        super().__init__(f'[{card_id}] {message}')
         self.card_id = card_id
         self.message = message
 
@@ -20,20 +20,20 @@ class InvalidImageError(Exception):
 
 def _shrink_image(file, card_id) -> Image:
     if not file or file.filename == '':
-        raise InvalidImageError("No file provided", card_id)
+        raise InvalidImageError('No file provided', card_id)
 
     if '.' not in file.filename:
-        raise InvalidImageError("File does not have extension", card_id)
+        raise InvalidImageError('File does not have extension', card_id)
     
     extension = file.filename.rsplit('.', 1)[1].lower()
     if extension not in ALLOWED_IMAGE_EXTENSIONS:
-        raise InvalidImageError(f"Unsupported file extension: {extension}", card_id)
+        raise InvalidImageError(f'Unsupported file extension: {extension}', card_id)
     
     try:
         image = Image.open(file)
         image.verify()  #verify if it's actually an img
     except Exception:
-        raise InvalidImageError("File is not a valid image", card_id)
+        raise InvalidImageError('File is not a valid image', card_id)
 
     #Has to be reopened after verifying
     file.seek(0)
@@ -60,7 +60,7 @@ def get_image_bytes_dict(request) -> tuple[dict, list]:
         if not key.startswith('image_'):
             continue
 
-        card_id = key.split("_", 1)[1]
+        card_id = key.split('_', 1)[1]
 
         try:
             images_dict[card_id] = _get_image_bytes(file, card_id)

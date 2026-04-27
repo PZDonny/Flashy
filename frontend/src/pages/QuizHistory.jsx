@@ -1,9 +1,9 @@
-import { useParams } from "react-router-dom";
-import React, { useEffect, useState } from "react";
-import BackButton from "../components/BackButton";
-import { api } from "../api";
-import "../styles/QuizHistory.css";
-import LoadingSpinner from "../components/LoadingSpinner";
+import { useParams } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import BackButton from '../components/BackButton';
+import { api } from '../api';
+import '../styles/QuizHistory.css';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 function QuizHistory() {
   const { setId } = useParams();
@@ -32,7 +32,7 @@ function QuizHistory() {
         setTotalQuizzes(data.total_quizzes);
         setWeakestTerm(data.weakest_term);
       } catch (err) {
-        console.error("Error fetching quiz history:", err);
+        console.error('Error fetching quiz history:', err);
       } finally {
         setLoading(false);
       }
@@ -53,7 +53,7 @@ function QuizHistory() {
       const data = await api.get(`/quiz/${quizId}/answers`);
       setQuizAnswers(data);
     } catch (err) {
-      console.error("Error fetching quiz answers:", err);
+      console.error('Error fetching quiz answers:', err);
     }
 
     setLoadingAnswers(false);
@@ -74,26 +74,26 @@ function QuizHistory() {
       : null;
 
   return (
-    <div className="quiz-history-page">
-      <BackButton text="Return to Set" to={`/sets/${setId}`} />
-      <div className="quiz-history-header">
+    <div className='quiz-history-page'>
+      <BackButton text='Return to Set' to={`/sets/${setId}`} />
+      <div className='quiz-history-header'>
         <h2>Last 10 Quizzes</h2>
 
-        <div className="quiz-history-stats">
-          <div className="quiz-history-sub">
-            Total Quizzes Taken:{" "}
-            <strong>{totalQuizzes !== null ? totalQuizzes : "..."}</strong>
+        <div className='quiz-history-stats'>
+          <div className='quiz-history-sub'>
+            Total Quizzes Taken:{' '}
+            <strong>{totalQuizzes !== null ? totalQuizzes : '...'}</strong>
           </div>
 
-          <div className="quiz-history-sub">
-            Average of Last 10 Quizzes:{" "}
+          <div className='quiz-history-sub'>
+            Average of Last 10 Quizzes:{' '}
             <strong>
-              {averagePercent !== null ? averagePercent + "%" : "..."}
+              {averagePercent !== null ? averagePercent + '%' : '...'}
             </strong>
           </div>
 
           {weaktestTerm && (
-            <div className="quiz-history-sub weakest">
+            <div className='quiz-history-sub weakest'>
               Weakest Term: <strong>{weaktestTerm}</strong>
             </div>
           )}
@@ -103,27 +103,27 @@ function QuizHistory() {
       {totalQuizzes !== null && totalQuizzes === 0 ? (
         <p>No quiz history found for this set.</p>
       ) : (
-        <div className="quiz-history-container">
+        <div className='quiz-history-container'>
           {quizHistories.map((quiz, index) => (
             <div
               key={quiz.id}
-              className="quiz-card"
+              className='quiz-card'
               onClick={() => openQuiz(quiz.id)}
             >
-              <span className="quiz-index">
+              <span className='quiz-index'>
                 Quiz #{quizHistories.length - index}
               </span>
-              <div className="quiz-score-info">
-                <div className="quiz-score">
+              <div className='quiz-score-info'>
+                <div className='quiz-score'>
                   Score: {quiz.score}/{quiz.total_questions}
                 </div>
 
-                <div className="quiz-percent">
+                <div className='quiz-percent'>
                   {Math.round((quiz.score / quiz.total_questions) * 100)}%
                 </div>
               </div>
 
-              <div className="quiz-date">
+              <div className='quiz-date'>
                 {new Date(quiz.taken_at).toLocaleString()}
               </div>
             </div>
@@ -132,38 +132,38 @@ function QuizHistory() {
       )}
 
       {selectedQuiz && (
-        <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
+        <div className='modal-overlay' onClick={closeModal}>
+          <div className='modal-content' onClick={(e) => e.stopPropagation()}>
+            <div className='modal-header'>
               <h3>Quiz Results</h3>
 
-              <button className="close-btn" onClick={closeModal}>
+              <button className='close-btn' onClick={closeModal}>
                 &times;
               </button>
             </div>
             {!loadingAnswers && (
-              <div className="results-summary">
-                <div className="results-stats">
-                  <div className="results-score">
+              <div className='results-summary'>
+                <div className='results-stats'>
+                  <div className='results-score'>
                     {correctCount} / {totalCount}
                   </div>
 
-                  <div className="results-percent">{percent}%</div>
+                  <div className='results-percent'>{percent}%</div>
                 </div>
 
-                <div className="results-bar">
+                <div className='results-bar'>
                   <div
-                    className="results-bar-fill"
+                    className='results-bar-fill'
                     style={{ width: `${percent}%` }}
                   />
                 </div>
 
-                <div className="results-label">
+                <div className='results-label'>
                   {percent >= 80
-                    ? "Great Job!"
+                    ? 'Great Job!'
                     : percent >= 50
-                    ? "Keep improving!"
-                    : "Needs more studying!"}
+                    ? 'Keep improving!'
+                    : 'Needs more studying!'}
                 </div>
               </div>
             )}
@@ -171,45 +171,45 @@ function QuizHistory() {
             {loadingAnswers ? (
               <LoadingSpinner />
             ) : (
-              <div className="answers-list">
+              <div className='answers-list'>
                 {quizAnswers.map((answer) => (
                   <div
                     key={answer.id}
                     className={`answer-item ${
-                      answer.is_correct ? "correct" : "wrong"
+                      answer.is_correct ? 'correct' : 'wrong'
                     }`}
                   >
-                    <div className="answer-header">
-                      <span className="result-icon">
-                        {answer.is_correct ? "✓ Correct" : "✗ Incorrect"}
+                    <div className='answer-header'>
+                      <span className='result-icon'>
+                        {answer.is_correct ? '✓ Correct' : '✗ Incorrect'}
                       </span>
                     </div>
 
-                    <div className="result-block">
-                      <div className="result-term">
-                        <span className="result-label">Term</span>
-                        <span className="result-value">{answer.term}</span>
+                    <div className='result-block'>
+                      <div className='result-term'>
+                        <span className='result-label'>Term</span>
+                        <span className='result-value'>{answer.term}</span>
                       </div>
 
                       {answer.is_correct ? (
-                        <div className="result-definition">
-                          <span className="result-label">Answer</span>
-                          <span className="result-value">
+                        <div className='result-definition'>
+                          <span className='result-label'>Answer</span>
+                          <span className='result-value'>
                             {answer.user_answer}
                           </span>
                         </div>
                       ) : (
                         <>
-                          <div className="result-definition">
-                            <span className="result-label">Correct Answer</span>
-                            <span className="result-value">
+                          <div className='result-definition'>
+                            <span className='result-label'>Correct Answer</span>
+                            <span className='result-value'>
                               {answer.definition}
                             </span>
                           </div>
 
-                          <div className="result-user">
-                            <span className="result-label">Your Answer</span>
-                            <span className="result-value">
+                          <div className='result-user'>
+                            <span className='result-label'>Your Answer</span>
+                            <span className='result-value'>
                               {answer.user_answer}
                             </span>
                           </div>

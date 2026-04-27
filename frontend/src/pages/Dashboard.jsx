@@ -1,17 +1,17 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
-import { api } from "../api";
-import SetSearchBar from "../components/SetSearchBar";
-import star from "../assets/star.svg";
-import "../styles/Dashboard.css";
-import LoadingSpinner from "../components/LoadingSpinner";
+import React, { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { api } from '../api';
+import SetSearchBar from '../components/SetSearchBar';
+import star from '../assets/star.svg';
+import '../styles/Dashboard.css';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 export default function Dashboard() {
   const { user, loading } = useAuth();
   const [analytics, setAnalytics] = useState(null);
   const [sets, setSets] = useState([]);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
   const [searchDescription, setSearchDescription] = useState(false);
 
   const sortedSets = useMemo(() => {
@@ -28,7 +28,7 @@ export default function Dashboard() {
 
       const inDescription =
         searchDescription &&
-        (set.description || "").toLowerCase().includes(query);
+        (set.description || '').toLowerCase().includes(query);
 
       return inTitle || inDescription;
     });
@@ -38,8 +38,8 @@ export default function Dashboard() {
     const fetchSets = async () => {
       try {
         const [setsData, analyticsData] = await Promise.all([
-          api.get("/sets"),
-          api.get("/analytics"),
+          api.get('/sets'),
+          api.get('/analytics'),
         ]);
         setSets(setsData);
         setAnalytics(analyticsData);
@@ -67,28 +67,28 @@ export default function Dashboard() {
 
   function createSet(set) {
     return (
-      <div key={set.id} className={"set" + (set.is_starred ? " starred" : "")}>
-        <div className="set-content">
-          <div className="set-top">
+      <div key={set.id} className={'set' + (set.is_starred ? ' starred' : '')}>
+        <div className='set-content'>
+          <div className='set-top'>
             <h3>{set.title}</h3>
             <img
               src={star}
-              className="star"
+              className='star'
               onClick={() => handleStarred(set.id, set.is_starred)}
-              alt="star"
+              alt='star'
             ></img>
           </div>
 
-          <p>{set.description || "No description"}</p>
+          <p>{set.description || 'No description'}</p>
         </div>
-        <div className="set-actions">
-          <Link to={`/sets/${set.id}`} className="view">
+        <div className='set-actions'>
+          <Link to={`/sets/${set.id}`} className='view'>
             View Cards
           </Link>
           <button
-            className="delete-icon-btn"
+            className='delete-icon-btn'
             onClick={() => handleDelete(set.id)}
-            title="Delete Set"
+            title='Delete Set'
           >
             Delete
           </button>
@@ -98,17 +98,17 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="dashboard-container">
-      <header className="dashboard-header">
-        <div className="dashboard-header-top">
+    <div className='dashboard-container'>
+      <header className='dashboard-header'>
+        <div className='dashboard-header-top'>
           <h1>My Sets</h1>
 
-          <Link to="/edit-set" className="create-btn">
+          <Link to='/edit-set' className='create-btn'>
             <span>+</span> Create New Set
           </Link>
         </div>
 
-        <div className="dashboard-header-search">
+        <div className='dashboard-header-search'>
           <SetSearchBar
             value={search}
             onChange={setSearch}
@@ -122,14 +122,14 @@ export default function Dashboard() {
         <LoadingSpinner />
       ) : (
         <>
-          <div className="dashboard-content">
-            <div className="sets">
+          <div className='dashboard-content'>
+            <div className='sets'>
               {sets.length > 0 ? (
                 filteredSets.length > 0 ? (
                   filteredSets.map((set) => createSet(set))
                 ) : (
-                  <div className="empty">
-                    <div className="empty-emoji">❓</div>
+                  <div className='empty'>
+                    <div className='empty-emoji'>❓</div>
                     <h2>No sets found</h2>
                     <p>
                       Try a different search or toggle set description search.
@@ -137,38 +137,38 @@ export default function Dashboard() {
                   </div>
                 )
               ) : (
-                <div className="empty">
-                  <div className="empty-emoji">📚</div>
+                <div className='empty'>
+                  <div className='empty-emoji'>📚</div>
                   <h2>You have no sets</h2>
                   <p>Create your first flashcard set to get started!</p>
-                  <Link to="/edit-set" className="create-btn-large">
+                  <Link to='/edit-set' className='create-btn-large'>
                     + Create Your First Set
                   </Link>
                 </div>
               )}
             </div>
 
-            <div className="analytics">
+            <div className='analytics'>
               <h2>Analytics</h2>
 
-              <div className="analytics-item">
-                <span className="analytics-label">Total Sets</span>
-                <span className="analytics-value">
-                  {analytics?.total_sets ?? "-"}
+              <div className='analytics-item'>
+                <span className='analytics-label'>Total Sets</span>
+                <span className='analytics-value'>
+                  {analytics?.total_sets ?? '-'}
                 </span>
               </div>
 
-              <div className="analytics-item">
-                <span className="analytics-label">Quizzes Today</span>
-                <span className="analytics-value">
-                  {analytics?.quizzes_today ?? "-"}
+              <div className='analytics-item'>
+                <span className='analytics-label'>Quizzes Today</span>
+                <span className='analytics-value'>
+                  {analytics?.quizzes_today ?? '-'}
                 </span>
               </div>
 
-              <div className="analytics-item">
-                <span className="analytics-label">Daily Quiz Streak</span>
-                <span className="analytics-value">
-                  {analytics?.quiz_streak ?? "-"}
+              <div className='analytics-item'>
+                <span className='analytics-label'>Daily Quiz Streak</span>
+                <span className='analytics-value'>
+                  {analytics?.quiz_streak ?? '-'}
                 </span>
               </div>
             </div>

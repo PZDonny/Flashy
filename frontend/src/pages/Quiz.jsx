@@ -1,10 +1,10 @@
-import React, { useEffect, useRef, useState } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
-import "../styles/Quiz.css";
-import { api } from "../api";
-import TermImage from "../components/TermImage";
-import SpeechButton from "../components/SpeechButton";
-import BackButton from "../components/BackButton";
+import { useEffect, useState } from 'react';
+import { useParams, useNavigate} from 'react-router-dom';
+import '../styles/Quiz.css';
+import { api } from '../api';
+import TermImage from '../components/TermImage';
+import SpeechButton from '../components/SpeechButton';
+import BackButton from '../components/BackButton';
 
 export default function Quiz() {
   const { setId } = useParams();
@@ -15,9 +15,9 @@ export default function Quiz() {
   const [cardsetData, setCardsetData] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [result, setResult] = useState(false);
-  const [resultClass, setResultClass] = useState("");
-  const [correctAnswer, setCorrectAnswer] = useState("");
-  const [userAnswer, setUserAnswer] = useState("");
+  const [resultClass, setResultClass] = useState('');
+  const [correctAnswer, setCorrectAnswer] = useState('');
+  const [userAnswer, setUserAnswer] = useState('');
   const [quizCompleted, setQuizCompleted] = useState(false);
   const progress = ((questionIndex) / quizCards.length) * 100;
   const navigate = useNavigate();
@@ -30,7 +30,7 @@ export default function Quiz() {
         const data = await api.get(`/sets/${setId}/info`);
         setCardsetData(data);
       } catch (err) {
-        console.error("Error getting set:", err);
+        console.error('Error getting set:', err);
       }
     };
     fetchSetDetails();
@@ -52,7 +52,7 @@ export default function Quiz() {
       setQuizCards(data.cards);
       setQuizStarted(true);
     } catch (err) {
-      console.error("Failed to start quiz session:", err);
+      console.error('Failed to start quiz session:', err);
     }
   };
 
@@ -71,7 +71,7 @@ export default function Quiz() {
         return;
       }
       setResult(null);
-      setCorrectAnswer("");
+      setCorrectAnswer('');
       setQuestionIndex((prev) => prev + 1);
       return;
     }
@@ -99,17 +99,17 @@ export default function Quiz() {
   };
 
   return (
-    <div className="quiz-container">
-      <header className="quiz-header">
-        <BackButton text="Back to Set" to={`/sets/${setId}`} />
+    <div className='quiz-container'>
+      <header className='quiz-header'>
+        <BackButton text='Back to Set' to={`/sets/${setId}`} />
 
         {!quizStarted ? (
           <h1>Quiz Options</h1>
         ) : (
           <>
-            <h1>{cardsetData ? cardsetData.title : "Loading..."}</h1>
+            <h1>{cardsetData ? cardsetData.title : 'Loading...'}</h1>
 
-            <div className="question-data">
+            <div className='question-data'>
               <div>
                 <h2>
                   Question {questionIndex + 1} of {quizCards?.length || 0}
@@ -119,65 +119,65 @@ export default function Quiz() {
               <div
                 className={`exact-container ${
                   cardsetData && quizCards[questionIndex].is_exact
-                    ? "exact"
-                    : ""
+                    ? 'exact'
+                    : ''
                 }`}
               >
                 <span>
                   {cardsetData && quizCards[questionIndex].is_exact
-                    ? "Exact Match"
-                    : "Paraphrasable"}
+                    ? 'Exact Match'
+                    : 'Paraphrasable'}
                 </span>
               </div>
             </div>
-            <div className="progress-container">
-              <div className="progress-bar" style={{ width: `${quizCompleted ? 100 : progress}%` }} />
+            <div className='progress-container'>
+              <div className='progress-bar' style={{ width: `${quizCompleted ? 100 : progress}%` }} />
             </div>
           </>
         )}
       </header>
 
       {!quizStarted ? (
-        <div className="quiz-setup">
-          <label htmlFor="max">Maximum Questions: </label>
+        <div className='quiz-setup'>
+          <label htmlFor='max'>Maximum Questions: </label>
 
           <input
-            id="max"
-            type="number"
+            id='max'
+            type='number'
             min={1}
             max={quizCards?.length || 10}
             value={max}
             onChange={(e) => setMax(Number(e.target.value))}
           />
 
-          <button onClick={startQuiz} className="start-btn">
+          <button onClick={startQuiz} className='start-btn'>
             Start Quiz
           </button>
         </div>
       ) : (
         <>
           {quizCompleted && (
-            <div className="quiz-completed-msg">
+            <div className='quiz-completed-msg'>
               Quiz Completed, Submitting ✔
             </div>
           )}
 
           {!quizCompleted && (
-            <div className="question-card">
-              <p className="define">Define</p>
+            <div className='question-card'>
+              <p className='define'>Define</p>
               <hr />
 
-              <div className="question-info">
+              <div className='question-info'>
                 {cardsetData && quizCards[questionIndex]?.image_url && (
                   <TermImage card={quizCards[questionIndex]} />
                 )}
 
-                <div className="question-term-container">
-                  <p className="question-term">
-                    {cardsetData ? quizCards[questionIndex].term : "..."}
+                <div className='question-term-container'>
+                  <p className='question-term'>
+                    {cardsetData ? quizCards[questionIndex].term : '...'}
                   </p>
                   <SpeechButton
-                    text={cardsetData ? quizCards[questionIndex].term : ""}
+                    text={cardsetData ? quizCards[questionIndex].term : ''}
                   />
                 </div>
               </div>
@@ -189,23 +189,23 @@ export default function Quiz() {
               <strong>{result}</strong>
               <hr />
 
-              <span className="answer-feedback-label">YOUR ANSWER:</span>
+              <span className='answer-feedback-label'>YOUR ANSWER:</span>
               <p>{userAnswer}</p>
 
-              <span className="answer-feedback-label">CORRECT ANSWER:</span>
+              <span className='answer-feedback-label'>CORRECT ANSWER:</span>
               <p>{correctAnswer}</p>
             </div>
           )}
 
-          <form className="quiz-form" onSubmit={handleSubmit}>
+          <form className='quiz-form' onSubmit={handleSubmit}>
             {!result && !quizCompleted && (
               <>
-                <label htmlFor="answer">YOUR ANSWER</label>
+                <label htmlFor='answer'>YOUR ANSWER</label>
                 <input
-                  type="text"
-                  id="answer"
-                  name="answer"
-                  autoComplete="off"
+                  type='text'
+                  id='answer'
+                  name='answer'
+                  autoComplete='off'
                   required
                 />
               </>
@@ -213,17 +213,17 @@ export default function Quiz() {
 
             {!quizCompleted && (
               <button
-                type="submit"
-                className={`check-btn ${!result ? "check" : "next"}`}
+                type='submit'
+                className={`check-btn ${!result ? 'check' : 'next'}`}
                 disabled={isSubmitting}
               >
                 {isSubmitting
-                  ? "Checking..."
+                  ? 'Checking...'
                   : !result
-                  ? "Check Answer"
+                  ? 'Check Answer'
                   : questionIndex === quizCards.length - 1
-                  ? "Finish"
-                  : "Next Question"}
+                  ? 'Finish'
+                  : 'Next Question'}
               </button>
             )}
           </form>

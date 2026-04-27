@@ -2,8 +2,8 @@ import '../styles/LoadingSpinner.css'
 
 function LoadingSpinner() {
   return (
-    <div className="loading-spinner-area">
-      <div className="loading-spinner"></div>
+    <div className='loading-spinner-area'>
+      <div className='loading-spinner'></div>
       <p>Loading...</p>
     </div>
     

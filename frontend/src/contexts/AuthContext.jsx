@@ -1,6 +1,6 @@
-import React, { createContext, useState, useEffect, useContext } from "react";
-import { Navigate } from "react-router-dom";
-import { api } from "../api";
+import React, { createContext, useState, useEffect, useContext } from 'react';
+import { Navigate } from 'react-router-dom';
+import { api } from '../api';
 
 const AuthContext = createContext();
 
@@ -9,7 +9,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   api.logout = () => {
-    localStorage.removeItem("token");
+    localStorage.removeItem('token');
     setUser(null);
     <Navigate to='/' />
   };
@@ -22,10 +22,10 @@ export const AuthProvider = ({ children }) => {
           return;
         }
 
-        const data = await api.get("/me");
+        const data = await api.get('/me');
         setUser(data);
       } catch (error) {
-        console.error("Error fetching user data:", error);
+        console.error('Error fetching user data:', error);
         api.logout();
       } finally {
         setLoading(false);

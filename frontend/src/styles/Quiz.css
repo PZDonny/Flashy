@@ -2,7 +2,7 @@
   max-width: 650px;
   margin: 3rem auto;
   padding: 2rem;
-  font-family: "Inter", sans-serif;
+  font-family: 'Inter', sans-serif;
   background-color: #fff;
   border-radius: 16px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
@@ -117,7 +117,7 @@
   letter-spacing: 0.05em;
 }
 
-.quiz-form input[type="text"] {
+.quiz-form input[type='text'] {
   width: 100%;
   padding: 14px 18px;
   border: 2px solid #eee;
@@ -127,7 +127,7 @@
   box-sizing: border-box;
 }
 
-.quiz-form input[type="text"]:focus {
+.quiz-form input[type='text']:focus {
   outline: none;
   border-color: #007bff;
   background-color: #fff;
@@ -249,7 +249,7 @@
   letter-spacing: 0.05em;
 }
 
-.quiz-setup input[type="number"] {
+.quiz-setup input[type='number'] {
   width: 100%;
   padding: 14px 18px;
   border: 2px solid #eee;
@@ -260,7 +260,7 @@
   text-align: center;
 }
 
-.quiz-setup input[type="number"]:focus {
+.quiz-setup input[type='number']:focus {
   outline: none;
   border-color: #007bff;
   background-color: #fff;

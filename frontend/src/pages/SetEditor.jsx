@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate, useParams, Link } from "react-router-dom";
-import "../styles/SetEditor.css";
-import { api } from "../api";
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams, Link } from 'react-router-dom';
+import '../styles/SetEditor.css';
+import { api } from '../api';
 
-import EditCard from "../components/EditCard";
+import EditCard from '../components/EditCard';
 
 export default function SetEditor() {
   const navigate = useNavigate();
@@ -11,13 +11,13 @@ export default function SetEditor() {
   /*if there's a set id passed in query params, then the set is being edited, not created */
   const { setId } = useParams();
   const isEditMode = !!setId;
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("A new set");
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('A new set');
   const [cards, setCards] = useState([
     {
       id: crypto.randomUUID(),
-      term: "",
-      definition: "",
+      term: '',
+      definition: '',
       isExact: false,
       image: null,
       error: null,
@@ -49,7 +49,7 @@ export default function SetEditor() {
             );
           }
         } catch (err) {
-          console.error("Error getting set:", err);
+          console.error('Error getting set:', err);
         }
       };
       fetchSetDetails();
@@ -61,8 +61,8 @@ export default function SetEditor() {
       ...cards,
       {
         id: crypto.randomUUID(),
-        term: "",
-        definition: "",
+        term: '',
+        definition: '',
         isExact: false,
         image: null,
         error: null,
@@ -111,7 +111,7 @@ export default function SetEditor() {
     if (!errorData?.errors) {
       return [
         {
-          message: err.message || "Something went wrong",
+          message: err.message || 'Something went wrong',
           cardId: null,
         },
       ];
@@ -125,8 +125,8 @@ export default function SetEditor() {
 
   function createFormData() {
     const formData = new FormData();
-    formData.append("title", title);
-    formData.append("description", description);
+    formData.append('title', title);
+    formData.append('description', description);
 
     const newCards = cards.map((card, index) => ({
       id: card.id,
@@ -137,7 +137,7 @@ export default function SetEditor() {
       imageDeleted: card.imageDeleted || false,
     }));
 
-    formData.append("cards", JSON.stringify(newCards));
+    formData.append('cards', JSON.stringify(newCards));
 
     cards.forEach((card) => {
       if (card.image?.image) {
@@ -153,8 +153,8 @@ export default function SetEditor() {
 
     try {
       const func = isEditMode ? api.putFormData : api.postFormData;
-      await func(`/sets${isEditMode ? `/${setId}` : ""}`, formData);
-      navigate(isEditMode ? `/sets/${setId}` : "/dashboard");
+      await func(`/sets${isEditMode ? `/${setId}` : ''}`, formData);
+      navigate(isEditMode ? `/sets/${setId}` : '/dashboard');
     } catch (err) {
       const parsedErrors = handleCardErrors(err);
 
@@ -168,8 +168,8 @@ export default function SetEditor() {
             const el = document.getElementById(`card-${firstError.cardId}`);
             if (el) {
               el.scrollIntoView({
-                behavior: "smooth",
-                block: "center",
+                behavior: 'smooth',
+                block: 'center',
               });
             }
           }, 0);
@@ -181,42 +181,42 @@ export default function SetEditor() {
   };
 
   return (
-    <div className="create-set-container">
-      <div className="create-set-header">
+    <div className='create-set-container'>
+      <div className='create-set-header'>
         <h2>
-          {isEditMode ? "Edit flashcard set" : "Create a new flashcard set"}
+          {isEditMode ? 'Edit flashcard set' : 'Create a new flashcard set'}
         </h2>
-        <div className="create-set-actions">
+        <div className='create-set-actions'>
           <Link
-            to={isEditMode ? `/sets/${setId}` : "/dashboard"}
-            className="btn cancel-btn"
+            to={isEditMode ? `/sets/${setId}` : '/dashboard'}
+            className='btn cancel-btn'
           >
             Cancel
           </Link>
-          <button type="submit" form="set-form" className="btn save-btn">
-            {isEditMode ? "Save Changes" : "Create"}
+          <button type='submit' form='set-form' className='btn save-btn'>
+            {isEditMode ? 'Save Changes' : 'Create'}
           </button>
         </div>
       </div>
 
-      <form id="set-form" onSubmit={handleSubmit} className="create-set-form">
-        <div className="prop-inputs">
+      <form id='set-form' onSubmit={handleSubmit} className='create-set-form'>
+        <div className='prop-inputs'>
           <input
-            className="title-input"
-            placeholder='Enter a title for this set"'
+            className='title-input'
+            placeholder='Enter a title for this set''
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
           />
           <textarea
-            className="desc-input"
-            placeholder="Add a description..."
+            className='desc-input'
+            placeholder='Add a description...'
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
         </div>
 
-        <div className="set-cards">
+        <div className='set-cards'>
           {cards.map((card, index) => (
             <EditCard
               card={card}
@@ -228,8 +228,8 @@ export default function SetEditor() {
           ))}
         </div>
 
-        <div className="form-actions">
-          <button type="button" className="add-btn" onClick={addCardRow}>
+        <div className='form-actions'>
+          <button type='button' className='add-btn' onClick={addCardRow}>
             + Add Card
           </button>
         </div>

@@ -22,7 +22,7 @@ def create_app():
     app = Flask(__name__)
     app.config['SQLALCHEMY_DATABASE_URI'] = DB_URI
     app.config['JWT_SECRET_KEY'] = SECRET_KEY
-    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
+    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
 
     CORS(app)
 

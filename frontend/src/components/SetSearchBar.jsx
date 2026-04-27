@@ -1,5 +1,5 @@
-import React from "react";
-import "../styles/SetSearchBar.css";
+import React from 'react';
+import '../styles/SetSearchBar.css';
 
 export default function SetSearchBar({
   value,
@@ -8,20 +8,20 @@ export default function SetSearchBar({
   onToggleDescription
 }) {
   return (
-    <div className="set-searchbar-container">
-      <div className="set-searchbar">
+    <div className='set-searchbar-container'>
+      <div className='set-searchbar'>
         <input
-          type="text"
+          type='text'
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          placeholder="Search your sets..."
-          className="set-searchbar-input"
+          placeholder='Search your sets...'
+          className='set-searchbar-input'
         />
       </div>
 
-      <label className="set-searchbar-checkbox">
+      <label className='set-searchbar-checkbox'>
         <input
-          type="checkbox"
+          type='checkbox'
           checked={searchDescription}
           onChange={(e) => onToggleDescription(e.target.checked)}
         />

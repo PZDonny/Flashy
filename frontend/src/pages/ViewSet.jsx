@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
-import { api } from "../api";
-import "../styles/ViewSet.css";
-import SliderButton from "../components/SliderButton";
-import TermImage from "../components/TermImage";
-import SpeechButton from "../components/SpeechButton";
-import BackButton from "../components/BackButton";
-import LoadingSpinner from "../components/LoadingSpinner";
+import React, { useEffect, useState } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import { api } from '../api';
+import '../styles/ViewSet.css';
+import SliderButton from '../components/SliderButton';
+import TermImage from '../components/TermImage';
+import SpeechButton from '../components/SpeechButton';
+import BackButton from '../components/BackButton';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 export default function ViewSet() {
   const { setId } = useParams();
@@ -18,7 +18,7 @@ export default function ViewSet() {
         const data = await api.get(`/sets/${setId}`);
         setCardsetData(data);
       } catch (err) {
-        console.error("Error getting set:", err);
+        console.error('Error getting set:', err);
       }
     };
     fetchSetDetails();
@@ -26,37 +26,37 @@ export default function ViewSet() {
 
 
   return (
-    <div className="set-container">
+    <div className='set-container'>
       {!cardsetData ? (
         <>
-          <header className="set-header">
-            <BackButton to="/dashboard" text="Return to Dashboard" />
+          <header className='set-header'>
+            <BackButton to='/dashboard' text='Return to Dashboard' />
           </header>
           <LoadingSpinner />
         </>
       ) : (
         <>
-          <header className="set-header">
-            <BackButton to="/dashboard" text="Return to Dashboard" />
-            <div className="set-info">
+          <header className='set-header'>
+            <BackButton to='/dashboard' text='Return to Dashboard' />
+            <div className='set-info'>
               <h1>{cardsetData.title}</h1>
 
-              <p>{cardsetData.description || "No description."}</p>
-              <span className="card-count">
+              <p>{cardsetData.description || 'No description.'}</p>
+              <span className='card-count'>
                 {cardsetData.cards.length} FLASHCARDS
               </span>
             </div>
 
-            <div className="set-actions">
-              <Link to={`/edit-set/${setId}`} className="set-btn edit-btn">
+            <div className='set-actions'>
+              <Link to={`/edit-set/${setId}`} className='set-btn edit-btn'>
                 Edit Set ✏️
               </Link>
-              <Link to={`/sets/${setId}/quiz`} className="set-btn quiz-btn">
+              <Link to={`/sets/${setId}/quiz`} className='set-btn quiz-btn'>
                 Take a Quiz 📝
               </Link>
               <Link
                 to={`/sets/${setId}/quiz-history`}
-                className="set-btn history-btn"
+                className='set-btn history-btn'
               >
                 Quiz History 📊
               </Link>
@@ -65,32 +65,32 @@ export default function ViewSet() {
 
           <hr></hr>
 
-          <div className="cards">
+          <div className='cards'>
             {cardsetData.cards.map((card) => (
-              <div key={card.id} className="card">
+              <div key={card.id} className='card'>
                 {card.image_url && <TermImage card={card} />}
 
-                <div className="card-property-container">
-                  <div className="card-term">
+                <div className='card-property-container'>
+                  <div className='card-term'>
                     <label>TERM</label>
                     <p>{card.term}</p>
                   </div>
                   <SpeechButton text={card.term} />
                 </div>
 
-                <div className="card-divider"></div>
+                <div className='card-divider'></div>
 
-                <div className="card-property-container">
-                  <div className="card-definition">
+                <div className='card-property-container'>
+                  <div className='card-definition'>
                     <label>DEFINITION</label>
                     <p>{card.definition}</p>
                   </div>
                   <SpeechButton text={card.definition} />
                 </div>
 
-                <div className="card-divider"></div>
+                <div className='card-divider'></div>
 
-                <div className="card-exact">
+                <div className='card-exact'>
                   <label>EXACT</label>
                   <SliderButton
                     initial={card.is_exact || false}

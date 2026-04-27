@@ -15,16 +15,16 @@ flashcard_bp = Blueprint('flashcard', __name__)
 def flashcard_sets():
     current_user = int(get_jwt_identity())
     if request.method == 'POST':
-        title = request.form.get("title")
-        description = request.form.get("description")
-        cards_json = request.form.get("cards")
+        title = request.form.get('title')
+        description = request.form.get('description')
+        cards_json = request.form.get('cards')
         cards = json.loads(cards_json)
         image_bytes_dict, errors = image_helper.get_image_bytes_dict(request)
 
         if errors:
             return jsonify({
-                "msg": "Image validation failed",
-                "errors": errors 
+                'msg': 'Image validation failed',
+                'errors': errors 
             }), 400
 
         return service.create_set(current_user, title, description, cards, image_bytes_dict)
@@ -45,7 +45,7 @@ def flashcard_set_info(id):
     flashcard_set = FlashcardSet.query.filter_by(id=id).first()
 
     if not flashcard_set:
-        return jsonify({"msg": "Set not found"}), 404
+        return jsonify({'msg': 'Set not found'}), 404
     
     return jsonify({
             'title': flashcard_set.title,
@@ -58,7 +58,7 @@ def flashcard_set(id):
     flashcard_set = FlashcardSet.query.filter_by(id=id).first()
 
     if not flashcard_set:
-        return jsonify({"msg": "Set not found"}), 404
+        return jsonify({'msg': 'Set not found'}), 404
     
     if request.method == 'GET':
         cards = Flashcard.query.filter_by(set_id=id).order_by(Flashcard.order).all()
@@ -90,16 +90,16 @@ def flashcard_set(id):
             return jsonify({'msg': 'Failed to delete set'}), 400
         
     elif request.method == 'PUT': #Set Edited
-        title = request.form.get("title", flashcard_set.title)
-        description = request.form.get("description", flashcard_set.description)
-        cards_data = request.form.get("cards", [])
+        title = request.form.get('title', flashcard_set.title)
+        description = request.form.get('description', flashcard_set.description)
+        cards_data = request.form.get('cards', [])
         cards = json.loads(cards_data) if cards_data else []
         image_bytes_dict, errors = image_helper.get_image_bytes_dict(request)
 
         if errors:
             return jsonify({
-                "msg": "Image validation failed",
-                "errors": errors 
+                'msg': 'Image validation failed',
+                'errors': errors 
             }), 400
 
         return service.update_set(flashcard_set, title, description, cards, image_bytes_dict)        
@@ -125,7 +125,7 @@ def get_image(id):
     etag = hashlib.md5(card.image).hexdigest() #image's hash
     
     #client already has image & image didn't change
-    if request.headers.get("If-None-Match") == etag: 
+    if request.headers.get('If-None-Match') == etag: 
         return '', 304
 
     response = Response(card.image)

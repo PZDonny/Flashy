@@ -22,10 +22,10 @@ def get_weakest_term(last_quizzes):
 
     result = (
         db.session.query(
-            Flashcard.term.label("term"), #renamed for query result
-            correct.label("correct"), #num correct
-            total.label("total"), #total attempts
-            accuracy.label("accuracy") #correctness ratio
+            Flashcard.term.label('term'), #renamed for query result
+            correct.label('correct'), #num correct
+            total.label('total'), #total attempts
+            accuracy.label('accuracy') #correctness ratio
         )
         .join(Quiz, Quiz.id == QuizAnswer.quiz_id) #Join to access quiz id
         .join(Flashcard, Flashcard.id == QuizAnswer.card_id) #Join to access Flashcard data (id, term)

@@ -26,10 +26,10 @@ def create_session(user_id, set_id) -> str:
     session_id = str(uuid4())
 
     session_data = {
-        "user_id": user_id,
-        "set_id": set_id,
-        "start_time": datetime.utcnow().isoformat(),
-        "answers": {}
+        'user_id': user_id,
+        'set_id': set_id,
+        'start_time': datetime.utcnow().isoformat(),
+        'answers': {}
     }
 
     redis_client.client.setex(
@@ -47,7 +47,7 @@ def is_user_session(session_id, user_id):
     session = get_session(session_id)
     if not session:
         return False
-    return session["user_id"] == user_id
+    return session['user_id'] == user_id
     
 
 def add_answer(session_id, card_id, user_answer, is_correct):
@@ -59,9 +59,9 @@ def add_answer(session_id, card_id, user_answer, is_correct):
 
     session = json.loads(data)
 
-    session["answers"][str(card_id)] = {
-        "user_answer": user_answer,
-        "is_correct": is_correct
+    session['answers'][str(card_id)] = {
+        'user_answer': user_answer,
+        'is_correct': is_correct
     }
 
     #Refresh TTL in redis

@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import "../styles/SpeechButton.css";
+import { useState } from 'react';
+import '../styles/SpeechButton.css';
 
 function SpeechButton({ text }) {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -24,7 +24,7 @@ function SpeechButton({ text }) {
 
   return (
     <span
-      className={`speech-btn ${isPlaying ? "playing" : ""}`}
+      className={`speech-btn ${isPlaying ? 'playing' : ''}`}
       onClick={handleClick}
     >
       🔉

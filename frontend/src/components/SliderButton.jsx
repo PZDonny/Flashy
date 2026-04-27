@@ -1,14 +1,14 @@
-import React, { useState } from "react";
-import "../styles/SliderButton.css";
+import { useState } from 'react';
+import '../styles/SliderButton.css';
 
 function SliderButton({ initial, small, toggleListener, disabled }) {
   const [isActive, setIsActive] = useState(initial || false);
 
   return (
     <div
-      className={`slider-button-comp-container ${isActive ? "active" : ""} ${
-        disabled ? "disabled" : "clickable"
-      } ${small ? "small" : ""}`}
+      className={`slider-button-comp-container ${isActive ? 'active' : ''} ${
+        disabled ? 'disabled' : 'clickable'
+      } ${small ? 'small' : ''}`}
       onClick={() => {
         if (!disabled) {
           setIsActive(!isActive);
@@ -16,7 +16,7 @@ function SliderButton({ initial, small, toggleListener, disabled }) {
         }
       }}
     >
-      <div className="slider-button-comp-toggle"></div>
+      <div className='slider-button-comp-toggle'></div>
     </div>
   );
 }

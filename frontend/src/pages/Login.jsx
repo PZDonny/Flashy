@@ -1,12 +1,12 @@
-import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
-import { api } from "../api";
-import "../styles/Auth.css";
+import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { api } from '../api';
+import '../styles/Auth.css';
 
 export default function Login() {
-  const [userInput, setUserInput] = useState({ email: "", password: "" });
-  const [response, setResponse] = useState("");
+  const [userInput, setUserInput] = useState({ email: '', password: '' });
+  const [response, setResponse] = useState('');
   const { setUser } = useAuth();
   const navigate = useNavigate();
 
@@ -18,56 +18,56 @@ export default function Login() {
     e.preventDefault();
     try {
       const data = await api.post('/login', userInput);
-      localStorage.setItem("token", data.token);
+      localStorage.setItem('token', data.token);
       setUser(data.user);
-      navigate("/dashboard");
+      navigate('/dashboard');
     } catch (err) {
       setResponse(err.message);
     }
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card">
+    <div className='auth-container'>
+      <div className='auth-card'>
         <h1>Welcome Back</h1>
-        <p className="auth-desc">Log in to your Flashy account</p>
+        <p className='auth-desc'>Log in to your Flashy account</p>
 
-        {response && <div className="auth-error">{response}</div>}
+        {response && <div className='auth-error'>{response}</div>}
 
-        <form onSubmit={handleSubmit} className="auth-form">
-          <div className="form-field">
-            <label htmlFor="email">Email Address</label>
+        <form onSubmit={handleSubmit} className='auth-form'>
+          <div className='form-field'>
+            <label htmlFor='email'>Email Address</label>
             <input
-              type="email"
-              id="email"
-              name="email"
-              placeholder="name@example.com"
+              type='email'
+              id='email'
+              name='email'
+              placeholder='name@example.com'
               value={userInput.email}
               onChange={handleChange}
               required
             />
           </div>
 
-          <div className="form-field">
-            <label htmlFor="password">Password</label>
+          <div className='form-field'>
+            <label htmlFor='password'>Password</label>
             <input
-              type="password"
-              id="password"
-              name="password"
-              placeholder="••••••••"
+              type='password'
+              id='password'
+              name='password'
+              placeholder='••••••••'
               value={userInput.password}
               onChange={handleChange}
               required
             />
           </div>
 
-          <button type="submit" className="auth-submit-btn">
+          <button type='submit' className='auth-submit-btn'>
             Login
           </button>
         </form>
 
-        <p className="auth-footer">
-          Don't have an account? <Link to="/register">Sign up</Link>
+        <p className='auth-footer'>
+          Don't have an account? <Link to='/register'>Sign up</Link>
         </p>
       </div>
     </div>
