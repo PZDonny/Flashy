@@ -10,6 +10,7 @@ function QuizHistory() {
   const [loading, setLoading] = useState(true);
   const [quizHistories, setQuizHistories] = useState([]);
   const [totalQuizzes, setTotalQuizzes] = useState(null);
+  const [weaktestTerm, setWeakestTerm] = useState(null);
   const [selectedQuiz, setSelectedQuiz] = useState(null);
   const [quizAnswers, setQuizAnswers] = useState([]);
   const [loadingAnswers, setLoadingAnswers] = useState(false);
@@ -29,6 +30,7 @@ function QuizHistory() {
 
         setQuizHistories(data.quizzes);
         setTotalQuizzes(data.total_quizzes);
+        setWeakestTerm(data.weakest_term);
       } catch (err) {
         console.error("Error fetching quiz history:", err);
       } finally {
@@ -89,6 +91,12 @@ function QuizHistory() {
               {averagePercent !== null ? averagePercent + "%" : "..."}
             </strong>
           </div>
+
+          {weaktestTerm && (
+            <div className="quiz-history-sub weakest">
+              Weakest Term: <strong>{weaktestTerm}</strong>
+            </div>
+          )}
         </div>
       </div>
 

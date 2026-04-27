@@ -56,6 +56,10 @@
   color: #4f46e5;
 }
 
+.quiz-history-sub.weakest strong{
+  color: rgb(240, 135, 135);
+}
+
 .quiz-history-container {
   display: flex;
   flex-direction: column;

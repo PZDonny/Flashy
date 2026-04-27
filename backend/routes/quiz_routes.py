@@ -2,12 +2,40 @@ import utils.quiz.quizsession as quizsession
 import utils.quiz.similarity as similarity
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from sqlalchemy import func, case
 from sqlalchemy.exc import IntegrityError
 from utils.model_helper import card_json
 from models import FlashcardSet, Quiz, Flashcard, QuizAnswer
 from extensions import db
 
-quiz_bp = Blueprint("quiz", __name__)
+quiz_bp = Blueprint('quiz', __name__)
+
+
+def get_weakest_term(last_quizzes):
+    correct = func.sum(
+        case((QuizAnswer.is_correct == True, 1), else_=0) #Get # of correct answers
+    )
+
+    total = func.count(QuizAnswer.id) #Get total # of attempts
+
+    accuracy = correct / total
+
+    result = (
+        db.session.query(
+            Flashcard.term.label("term"), #renamed for query result
+            correct.label("correct"), #num correct
+            total.label("total"), #total attempts
+            accuracy.label("accuracy") #correctness ratio
+        )
+        .join(Quiz, Quiz.id == QuizAnswer.quiz_id) #Join to access quiz id
+        .join(Flashcard, Flashcard.id == QuizAnswer.card_id) #Join to access Flashcard data (id, term)
+        .filter(Quiz.id.in_(last_quizzes))
+        .group_by(Flashcard.id, Flashcard.term) #calculated by term, rather than by row
+        .order_by(accuracy.asc()) #Sort by weakest first
+        .first()
+    )
+
+    return result
 
 @quiz_bp.route('/sets/<int:id>/quiz_history', methods=['GET'])
 @jwt_required()
@@ -15,7 +43,7 @@ def quiz_history(id):
     current_user = int(get_jwt_identity())
     flashcard_set = FlashcardSet.query.filter_by(id=id).first()
     if not flashcard_set:
-        return jsonify({"msg": "Set not found"}), 404
+        return jsonify({'msg': 'Set not found'}), 404
     
     total_quizzes = Quiz.query.filter_by(
         set_id=id,
@@ -29,15 +57,21 @@ def quiz_history(id):
             .all()
     )
 
-    return jsonify({"quizzes": [
+    last_quiz_ids = [quiz.id for quiz in history]
+    weaktest_term = get_weakest_term(last_quiz_ids)
+
+    return jsonify({'quizzes': [
         {
-            "id": quiz.id,
-            "score": quiz.score,
-            "total_questions": quiz.total_questions,
-            "taken_at": quiz.taken_at
+            'id': quiz.id,
+            'score': quiz.score,
+            'total_questions': quiz.total_questions,
+            'taken_at': quiz.taken_at
         }
         for quiz in history
-    ], 'total_quizzes': total_quizzes}), 200
+    ], 
+    'total_quizzes': total_quizzes,
+    'weakest_term': weaktest_term.term if weaktest_term else None,
+    }), 200
 
 @quiz_bp.route('/quiz/<int:id>/answers')
 @jwt_required()
@@ -45,7 +79,7 @@ def quiz_answers(id):
     current_user = int(get_jwt_identity())
     quiz = Quiz.query.filter_by(id=id).first()
     if not quiz:
-        return jsonify({"msg": "Quiz not found"}), 404
+        return jsonify({'msg': 'Quiz not found'}), 404
     
     answers = QuizAnswer.query.filter_by(quiz_id=id).all()
     card_ids = [a.card_id for a in answers]
@@ -77,12 +111,12 @@ def quiz_answers(id):
 def start_quiz():
     current_user = int(get_jwt_identity())
 
-    set_id = request.args.get("set_id")
+    set_id = request.args.get('set_id')
     flashcard_set = FlashcardSet.query.filter_by(id=set_id).first()
     if not flashcard_set:
-        return jsonify({"msg": "Set not found"}), 404
+        return jsonify({'msg': 'Set not found'}), 404
 
-    max_questions = request.args.get("max", default=10, type=int)
+    max_questions = request.args.get('max', default=10, type=int)
     
     quiz_session_id = quizsession.create_session(current_user, set_id)
     cards = (Flashcard.query
@@ -92,7 +126,7 @@ def start_quiz():
                 .all())
     
     if not cards:
-        return jsonify({"msg": "Failed to get cards from set"}),
+        return jsonify({'msg': 'Failed to get cards from set'}),
 
     return jsonify({
         'title': flashcard_set.title,
