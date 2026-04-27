@@ -130,34 +130,35 @@ function QuizHistory() {
                 &times;
               </button>
             </div>
+            {!loadingAnswers && (
+              <div className="results-summary">
+                <div className="results-stats">
+                  <div className="results-score">
+                    {correctCount} / {totalCount}
+                  </div>
 
-            <div className="results-summary">
-              <div className="results-stats">
-                <div className="results-score">
-                  {correctCount} / {totalCount}
+                  <div className="results-percent">{percent}%</div>
                 </div>
 
-                <div className="results-percent">{percent}%</div>
-              </div>
+                <div className="results-bar">
+                  <div
+                    className="results-bar-fill"
+                    style={{ width: `${percent}%` }}
+                  />
+                </div>
 
-              <div className="results-bar">
-                <div
-                  className="results-bar-fill"
-                  style={{ width: `${percent}%` }}
-                />
+                <div className="results-label">
+                  {percent >= 80
+                    ? "Great Job!"
+                    : percent >= 50
+                    ? "Keep improving!"
+                    : "Needs more studying!"}
+                </div>
               </div>
-
-              <div className="results-label">
-                {percent >= 80
-                  ? "Great Job!"
-                  : percent >= 50
-                  ? "Keep improving!"
-                  : "Needs more studying!"}
-              </div>
-            </div>
+            )}
 
             {loadingAnswers ? (
-              <p>Loading...</p>
+              <LoadingSpinner />
             ) : (
               <div className="answers-list">
                 {quizAnswers.map((answer) => (

@@ -5,6 +5,7 @@ import { api } from "../api";
 import SetSearchBar from "../components/SetSearchBar";
 import star from "../assets/star.svg";
 import "../styles/Dashboard.css";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 export default function Dashboard() {
   const { user, loading } = useAuth();
@@ -14,6 +15,7 @@ export default function Dashboard() {
   const [searchDescription, setSearchDescription] = useState(false);
 
   const sortedSets = useMemo(() => {
+    if (!sets) return [];
     //sorts again when sets changed, instead of on every rerender
     return [...sets].sort((a, b) => b.is_starred - a.is_starred);
   }, [sets]);
@@ -116,55 +118,63 @@ export default function Dashboard() {
         </div>
       </header>
 
-      <div className="dashboard-content">
-        <div className="sets">
-          {sets.length > 0 ? (
-            filteredSets.length > 0 ? (
-              filteredSets.map((set) => createSet(set))
-            ) : (
-              <div className="empty">
-                <div className="empty-emoji">❓</div>
-                <h2>No sets found</h2>
-                <p>Try a different search or toggle set description search.</p>
-              </div>
-            )
-          ) : (
-            <div className="empty">
-              <div className="empty-emoji">📚</div>
-              <h2>You have no sets</h2>
-              <p>Create your first flashcard set to get started!</p>
-              <Link to="/edit-set" className="create-btn-large">
-                + Create Your First Set
-              </Link>
+      {!sets || !analytics ? (
+        <LoadingSpinner />
+      ) : (
+        <>
+          <div className="dashboard-content">
+            <div className="sets">
+              {sets.length > 0 ? (
+                filteredSets.length > 0 ? (
+                  filteredSets.map((set) => createSet(set))
+                ) : (
+                  <div className="empty">
+                    <div className="empty-emoji">❓</div>
+                    <h2>No sets found</h2>
+                    <p>
+                      Try a different search or toggle set description search.
+                    </p>
+                  </div>
+                )
+              ) : (
+                <div className="empty">
+                  <div className="empty-emoji">📚</div>
+                  <h2>You have no sets</h2>
+                  <p>Create your first flashcard set to get started!</p>
+                  <Link to="/edit-set" className="create-btn-large">
+                    + Create Your First Set
+                  </Link>
+                </div>
+              )}
             </div>
-          )}
-        </div>
 
-        <div className="analytics">
-          <h2>Analytics</h2>
+            <div className="analytics">
+              <h2>Analytics</h2>
 
-          <div className="analytics-item">
-            <span className="analytics-label">Total Sets</span>
-            <span className="analytics-value">
-              {analytics?.total_sets ?? sets.length}
-            </span>
+              <div className="analytics-item">
+                <span className="analytics-label">Total Sets</span>
+                <span className="analytics-value">
+                  {analytics?.total_sets ?? "-"}
+                </span>
+              </div>
+
+              <div className="analytics-item">
+                <span className="analytics-label">Quizzes Today</span>
+                <span className="analytics-value">
+                  {analytics?.quizzes_today ?? "-"}
+                </span>
+              </div>
+
+              <div className="analytics-item">
+                <span className="analytics-label">Daily Quiz Streak</span>
+                <span className="analytics-value">
+                  {analytics?.quiz_streak ?? "-"}
+                </span>
+              </div>
+            </div>
           </div>
-
-          <div className="analytics-item">
-            <span className="analytics-label">Quizzes Today</span>
-            <span className="analytics-value">
-              {analytics?.quizzes_today ?? 0}
-            </span>
-          </div>
-
-          <div className="analytics-item">
-            <span className="analytics-label">Daily Quiz Streak</span>
-            <span className="analytics-value">
-              {analytics?.quiz_streak ?? 0}
-            </span>
-          </div>
-        </div>
-      </div>
+        </>
+      )}
     </div>
   );
 }

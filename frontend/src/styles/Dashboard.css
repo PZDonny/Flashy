@@ -51,9 +51,15 @@
 }
 
 .analytics h2 {
+  display: block;
   font-size: 1.2rem;
+  margin: 0 auto;
   margin-bottom: 1rem;
   color: #111827;
+  text-align: center;
+  width: 60%;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #f3f4f6
 }
 
 .analytics-item {
