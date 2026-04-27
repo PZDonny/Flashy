@@ -203,7 +203,7 @@ export default function SetEditor() {
         <div className='prop-inputs'>
           <input
             className='title-input'
-            placeholder='Enter a title for this set''
+            placeholder='Enter a title for this set'
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
