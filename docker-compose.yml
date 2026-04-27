@@ -15,22 +15,22 @@ services:
       POSTGRES_DB: flashy
     volumes:
       - pg_data:/var/lib/postgresql
-  flask:
-    build: ./backend
-    ports:
-      - "5000:5000"
-    depends_on:
-      - redis
-      - db
-    environment:
-      DATABASE_URL: postgresql://user:password@db:5432/flashy
-      REDIS_URL: redis://redis:6379
-  react:
-    build: ./frontend
-    ports:
-      - "5173:5173"
-    depends_on:
-      - flask
+  #flask:
+  #  build: ./backend
+  #  ports:
+  #    - "5000:5000"
+  #  depends_on:
+  #    - redis
+  #    - db
+  #  environment:
+  #    DATABASE_URL: postgresql://user:password@db:5432/flashy
+  #    REDIS_URL: redis://redis:6379
+  #react:
+  #  build: ./frontend
+  #  ports:
+  #    - "5173:5173"
+  #  depends_on:
+  #    - flask
 
 volumes:
   pg_data:
