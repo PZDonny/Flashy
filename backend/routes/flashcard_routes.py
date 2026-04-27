@@ -61,7 +61,7 @@ def flashcard_set(id):
         return jsonify({"msg": "Set not found"}), 404
     
     if request.method == 'GET':
-        cards = Flashcard.query.filter_by(set_id=id).all()
+        cards = Flashcard.query.filter_by(set_id=id).order_by(Flashcard.order).all()
         return jsonify({
             'title': flashcard_set.title,
             'description': flashcard_set.description,
@@ -95,8 +95,6 @@ def flashcard_set(id):
         cards_data = request.form.get("cards", [])
         cards = json.loads(cards_data) if cards_data else []
         image_bytes_dict, errors = image_helper.get_image_bytes_dict(request)
-
-        current_app.logger.info(request.files)
 
         if errors:
             return jsonify({

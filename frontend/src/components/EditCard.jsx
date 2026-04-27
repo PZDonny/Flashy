@@ -24,10 +24,20 @@ function EditCard({
       id={`card-${card.id}`}
       className={`card-input-row ${card.error ? "error" : ""}`}
     >
-      {console.log("card error:", card.id, card.error)}
       <div className="card-row-header">
         <span className="card-number">{index + 1}</span>
-        {card.error && <div className="card-error">{card.error}</div>}
+        {card.error && (
+          <div className="card-error">
+            <span>{card.error}</span>
+            <button
+              type="button"
+              className="close-error-btn"
+              onClick={() => handleCardChange(card.id, "error", null)}
+            >
+              &times;
+            </button>
+          </div>
+        )}
         <button
           type="button"
           className="delete-row-btn"

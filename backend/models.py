@@ -24,6 +24,7 @@ class Flashcard(db.Model):
     definition = db.Column(db.String(255), nullable=False)
     is_exact = db.Column(db.Boolean, nullable=False, default=False)
     image = db.Column(db.LargeBinary, nullable=True)
+    order = db.Column(db.Integer, nullable=False, default=0)
 
 class Quiz(db.Model):
     id = db.Column(db.Integer, primary_key=True)

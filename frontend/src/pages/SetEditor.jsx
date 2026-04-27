@@ -78,7 +78,7 @@ export default function SetEditor() {
   const handleCardChange = (cardId, field, value) => {
     setCards((prev) =>
       prev.map((card) =>
-        card.id === cardId ? { ...card, error: null, [field]: value} : card
+        card.id === cardId ? { ...card, error: null, [field]: value } : card
       )
     );
   };
@@ -128,8 +128,9 @@ export default function SetEditor() {
     formData.append("title", title);
     formData.append("description", description);
 
-    const newCards = cards.map((card) => ({
+    const newCards = cards.map((card, index) => ({
       id: card.id,
+      order: index,
       term: card.term,
       definition: card.definition,
       isExact: card.isExact,
@@ -152,7 +153,7 @@ export default function SetEditor() {
 
     try {
       const func = isEditMode ? api.putFormData : api.postFormData;
-      await func(`/sets${isEditMode ? `/${setId}` : ''}`, formData);
+      await func(`/sets${isEditMode ? `/${setId}` : ""}`, formData);
       navigate(isEditMode ? `/sets/${setId}` : "/dashboard");
     } catch (err) {
       const parsedErrors = handleCardErrors(err);

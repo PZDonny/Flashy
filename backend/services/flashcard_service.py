@@ -11,13 +11,15 @@ def create_set(user_id, title, description, cards, image_bytes_dict):
 
         db.session.flush()
 
-        for card in cards:
+        for index, card in enumerate(cards):
             image_bytes = image_bytes_dict.get(str(card.get('id')))
             new_card = Flashcard(set_id=new_set.id, 
-                                    term=card['term'], 
-                                    definition=card['definition'], 
-                                    is_exact=card.get('isExact', False),
-                                    image=image_bytes or None)
+                                term=card['term'], 
+                                definition=card['definition'], 
+                                is_exact=card.get('isExact', False),
+                                image=image_bytes,
+                                order=index
+                                )
             db.session.add(new_card)
         db.session.commit()
         return jsonify({'msg': 'Flashcard set created successfully'}), 201
@@ -44,6 +46,7 @@ def update_set(flashcard_set:FlashcardSet, title, description, cards, image_byte
             card.term = card_item.get('term', card.term)
             card.definition = card_item.get('definition', card.definition)
             card.is_exact = card_item.get('isExact', card.is_exact)
+            card.order = card_item.get('order', 0)
 
             if card_item.get('imageDeleted'):
                 card.image = None
@@ -58,16 +61,14 @@ def update_set(flashcard_set:FlashcardSet, title, description, cards, image_byte
                 term=card_item.get('term'),
                 definition=card_item.get('definition'),
                 is_exact=card_item.get('isExact', False),
-                image=image_bytes_dict.get(card_id, None)
+                image=image_bytes_dict.get(card_id, None),
+                order=card_item.get('order', 0)
             )
             db.session.add(new_card)
 
     #Cards that should no longer exist
     for card_to_delete in existing_cards_dict.values():
         db.session.delete(card_to_delete)
-
-    current_app.logger.info(
-    {c.id: len(c.image) if c.image else None for c in existing_cards}
-)
+        
     db.session.commit()
     return jsonify({'msg': 'Set updated successfully'}), 200

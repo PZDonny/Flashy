@@ -96,7 +96,7 @@
   background-color: #fff5f5;
 }
 
-.card-input-row.error .card-error{
+.card-input-row.error .card-error {
   color: #d32f2f;
   background-color: #fdecea;
   border: 1px solid #f5c2c2;
@@ -104,6 +104,12 @@
   font-size: 0.9rem;
   text-align: center;
   padding: 10px 10px;
+}
+
+.card-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .card-row-header {
@@ -115,14 +121,13 @@
   margin-bottom: 1.5rem;
 }
 
-
-
 .card-number {
   font-weight: 800;
   color: #666;
 }
 
-.delete-row-btn {
+.delete-row-btn,
+.close-error-btn {
   background: none;
   border: none;
   font-size: 1.5rem;
@@ -131,7 +136,13 @@
   line-height: 1;
 }
 
-.delete-row-btn:hover {
+.card-input-row.error .delete-row-btn,
+.close-error-btn {
+  color: gray;
+}
+
+.delete-row-btn:hover,
+.close-error-btn:hover {
   color: #ff4d4d;
 }
 
@@ -166,7 +177,6 @@
 .input-field input:focus {
   border-color: #007bff;
 }
-
 
 .input-field.exact-toggle-input {
   flex-direction: column;
