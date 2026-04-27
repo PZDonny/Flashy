@@ -130,7 +130,7 @@ def get_image(id):
 
     response = Response(card.image)
     response.mimetype = 'image/jpeg'
-    response.headers['Cache-Control'] = 'no-cache'
+    response.headers['Cache-Control'] = 'no-cache' #check server before using cached version
     response.headers['ETag'] = etag
 
     return response
