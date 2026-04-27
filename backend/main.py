@@ -11,13 +11,12 @@ from routes.misc_routes import misc_bp
 import extensions
 import redis_client
 
+
 load_dotenv()
 
 DB_URI = 'postgresql://user:password@localhost:5435/flashy'
 SECRET_KEY = os.getenv('JWT_SECRET_KEY')
-DEBUG = os.getenv('DEBUG', 'False').lower()
-#REDIS_PORT = int(os.getenv('REDIS_PORT', 6379))
-REDIS_PORT = 6379
+REDIS_PORT = int(os.getenv('REDIS_PORT', 6379))
 
 def create_app():
     app = Flask(__name__)
@@ -44,4 +43,4 @@ def create_app():
 
 if __name__ == '__main__':
     app = create_app()
-    app.run(debug=DEBUG)
+    app.run(debug=True)

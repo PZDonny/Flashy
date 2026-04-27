@@ -1,17 +1,21 @@
 
-### In Frontend Directory:
+## In Flashy Directory
+- run "docker compose up -d" to start Redis and PostgreSQL
+- run "docker compose down -v" to shut down Redis and PostgreSQL
+
+## In Frontend Directory:
 - run "npm install" to get libraries
 - run "npm run dev"
 
-### In Backend Directory:
+## In Backend Directory:
 - create a virtual environment
 - activate the virtual environment
 - run "pip install -r requirements.txt"
 - run "python main.py"
 
-### .env File:
+**.env File:**
 ```
 - JWT_SECRET_KEY (String)
 - SQLALCHEMY_DATABASE_URI (String)
-- DEBUG (Boolean)
+- REDIS_PORT (Integer, 6379=Default)
 ```
