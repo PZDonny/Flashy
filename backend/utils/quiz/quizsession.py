@@ -94,10 +94,14 @@ def create_answer_db_objects(session_id, quiz_id) -> list:
     lyst = list()
 
     for card_id, answer in session['answers'].items():
+        card:Flashcard = Flashcard.query.filter_by(id=card_id).first()
+        if not card:
+            continue
         lyst.append(
             QuizAnswer(
                 quiz_id = quiz_id,
-                card_id = int(card_id),
+                term = card.term,
+                correct_answer = card.definition,
                 user_answer = answer['user_answer'],
                 is_correct = answer['is_correct']
             )

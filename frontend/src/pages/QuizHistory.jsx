@@ -77,7 +77,7 @@ function QuizHistory() {
     <div className='quiz-history-page'>
       <BackButton text='Return to Set' to={`/sets/${setId}`} />
       <div className='quiz-history-header'>
-        <h2>Last 10 Quizzes</h2>
+        <h2>Recent Quizzes</h2>
 
         <div className='quiz-history-stats'>
           <div className='quiz-history-sub'>
@@ -203,7 +203,7 @@ function QuizHistory() {
                           <div className='result-definition'>
                             <span className='result-label'>Correct Answer</span>
                             <span className='result-value'>
-                              {answer.definition}
+                              {answer.correct_answer}
                             </span>
                           </div>
 

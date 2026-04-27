@@ -22,15 +22,14 @@ def get_weakest_term(last_quizzes):
 
     result = (
         db.session.query(
-            Flashcard.term.label('term'), #renamed for query result
-            correct.label('correct'), #num correct
-            total.label('total'), #total attempts
-            accuracy.label('accuracy') #correctness ratio
+            QuizAnswer.term.label("term"), #renamed for query result
+            correct.label("correct"), #num correct
+            total.label("total"), #total attempts
+            accuracy.label("accuracy") #correctness ratio
         )
         .join(Quiz, Quiz.id == QuizAnswer.quiz_id) #Join to access quiz id
-        .join(Flashcard, Flashcard.id == QuizAnswer.card_id) #Join to access Flashcard data (id, term)
         .filter(Quiz.id.in_(last_quizzes))
-        .group_by(Flashcard.id, Flashcard.term) #calculated by term, rather than by row
+        .group_by(QuizAnswer.term) #calculated by term, rather than by row
         .order_by(accuracy.asc()) #Sort by weakest first
         .first()
     )
@@ -82,24 +81,15 @@ def quiz_answers(id):
         return jsonify({'msg': 'Quiz not found'}), 404
     
     answers = QuizAnswer.query.filter_by(quiz_id=id).all()
-    card_ids = [a.card_id for a in answers]
 
-    cards = Flashcard.query.filter(
-        Flashcard.id.in_(card_ids)
-    ).all()
-
-    
-    card_dict = {card.id: card for card in cards}
 
     answer_dicts = []
     for answer in answers:
-        card = card_dict.get(answer.card_id)
-        if not card:
-            continue
-        answer_json = card_json(card)
-        answer_json['id'] = answer.id
-        answer_json['user_answer'] = answer.user_answer
-        answer_json['is_correct'] = answer.is_correct
+        answer_json = {'id': answer.id,
+                       'term': answer.term,
+                       'correct_answer': answer.correct_answer,
+                       'user_answer': answer.user_answer,
+                       'is_correct': answer.is_correct}
         answer_dicts.append(answer_json)
 
     return jsonify(answer_dicts), 200

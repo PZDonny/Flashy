@@ -37,6 +37,7 @@ class Quiz(db.Model):
 class QuizAnswer(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     quiz_id = db.Column(db.Integer, db.ForeignKey('quiz.id'), nullable=False)
-    card_id = db.Column(db.Integer, db.ForeignKey('flashcard.id'))
+    term = db.Column(db.String(255), nullable=False)
+    correct_answer = db.Column(db.String(255), nullable=False)
     user_answer = db.Column(db.String(255), nullable=False)
     is_correct = db.Column(db.Boolean)
