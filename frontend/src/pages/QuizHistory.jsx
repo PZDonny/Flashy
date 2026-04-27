@@ -3,28 +3,45 @@ import React, { useEffect, useState } from "react";
 import BackButton from "../components/BackButton";
 import { api } from "../api";
 import "../styles/QuizHistory.css";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 function QuizHistory() {
   const { setId } = useParams();
+  const [loading, setLoading] = useState(true);
   const [quizHistories, setQuizHistories] = useState([]);
   const [totalQuizzes, setTotalQuizzes] = useState(null);
   const [selectedQuiz, setSelectedQuiz] = useState(null);
   const [quizAnswers, setQuizAnswers] = useState([]);
   const [loadingAnswers, setLoadingAnswers] = useState(false);
 
+  const correctCount = quizAnswers.filter((a) => a.is_correct).length;
+  const totalCount = quizAnswers.length;
+  const percent = totalCount
+    ? Math.round((correctCount / totalCount) * 100)
+    : 0;
+
   useEffect(() => {
     const fetchQuizHistory = async () => {
       try {
+        setLoading(true);
+
         const data = await api.get(`/sets/${setId}/quiz_history`);
+
         setQuizHistories(data.quizzes);
         setTotalQuizzes(data.total_quizzes);
       } catch (err) {
         console.error("Error fetching quiz history:", err);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchQuizHistory();
   }, [setId]);
+
+  if (loading) {
+    return <LoadingSpinner />;
+  }
 
   const openQuiz = async (quizId) => {
     setSelectedQuiz(quizId);
@@ -45,14 +62,33 @@ function QuizHistory() {
     setQuizAnswers([]);
   };
 
+  const averagePercent =
+    quizHistories.length > 0
+      ? Math.round(
+          quizHistories.reduce((sum, quiz) => {
+            return sum + (quiz.score / quiz.total_questions) * 100;
+          }, 0) / quizHistories.length
+        )
+      : null;
+
   return (
     <div className="quiz-history-page">
       <BackButton text="Return to Set" to={`/sets/${setId}`} />
       <div className="quiz-history-header">
         <h2>Quiz History</h2>
-        <div className="quiz-history-subtext">
-          Total Quizzes Taken:{" "}
-          <strong>{totalQuizzes !== null ? totalQuizzes : "..."}</strong>
+
+        <div className="quiz-history-stats">
+          <div className="quiz-history-sub">
+            Total Quizzes Taken:{" "}
+            <strong>{totalQuizzes !== null ? totalQuizzes : "..."}</strong>
+          </div>
+
+          <div className="quiz-history-sub">
+            Average of Last 10 Quizzes:{" "}
+            <strong>
+              {averagePercent !== null ? averagePercent + "%" : "..."}
+            </strong>
+          </div>
         </div>
       </div>
 
@@ -91,8 +127,33 @@ function QuizHistory() {
               <h3>Quiz Results</h3>
 
               <button className="close-btn" onClick={closeModal}>
-                ✕
+                &times;
               </button>
+            </div>
+
+            <div className="results-summary">
+              <div className="results-stats">
+                <div className="results-score">
+                  {correctCount} / {totalCount}
+                </div>
+
+                <div className="results-percent">{percent}%</div>
+              </div>
+
+              <div className="results-bar">
+                <div
+                  className="results-bar-fill"
+                  style={{ width: `${percent}%` }}
+                />
+              </div>
+
+              <div className="results-label">
+                {percent >= 80
+                  ? "Great Job!"
+                  : percent >= 50
+                  ? "Keep improving!"
+                  : "Needs more studying!"}
+              </div>
             </div>
 
             {loadingAnswers ? (
@@ -114,19 +175,34 @@ function QuizHistory() {
 
                     <div className="result-block">
                       <div className="result-term">
-                        <span className="label">Term</span>
-                        <span className="value">{answer.term}</span>
+                        <span className="result-label">Term</span>
+                        <span className="result-value">{answer.term}</span>
                       </div>
 
-                      <div className="result-definition">
-                        <span className="label">Definition</span>
-                        <span className="value">{answer.definition}</span>
-                      </div>
+                      {answer.is_correct ? (
+                        <div className="result-definition">
+                          <span className="result-label">Answer</span>
+                          <span className="result-value">
+                            {answer.user_answer}
+                          </span>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="result-definition">
+                            <span className="result-label">Correct Answer</span>
+                            <span className="result-value">
+                              {answer.definition}
+                            </span>
+                          </div>
 
-                      <div className="result-user">
-                        <span className="label">Your Answer</span>
-                        <span className="value">{answer.user_answer}</span>
-                      </div>
+                          <div className="result-user">
+                            <span className="result-label">Your Answer</span>
+                            <span className="result-value">
+                              {answer.user_answer}
+                            </span>
+                          </div>
+                        </>
+                      )}
                     </div>
                   </div>
                 ))}

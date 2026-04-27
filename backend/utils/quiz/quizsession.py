@@ -78,6 +78,7 @@ def create_quiz_db_object(session_id) -> Quiz:
     )
 
     return Quiz(
+        user_id = session['user_id'],
         set_id = session['set_id'],
         score = score,
         total_questions = len(session['answers']),

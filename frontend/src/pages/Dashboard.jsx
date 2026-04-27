@@ -8,6 +8,7 @@ import "../styles/Dashboard.css";
 
 export default function Dashboard() {
   const { user, loading } = useAuth();
+  const [analytics, setAnalytics] = useState(null);
   const [sets, setSets] = useState([]);
   const [search, setSearch] = useState("");
   const [searchDescription, setSearchDescription] = useState(false);
@@ -34,8 +35,12 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchSets = async () => {
       try {
-        const data = await api.get("/sets");
-        setSets(data);
+        const [setsData, analyticsData] = await Promise.all([
+          api.get("/sets"),
+          api.get("/analytics"),
+        ]);
+        setSets(setsData);
+        setAnalytics(analyticsData);
       } catch (err) {
         console.error(err);
       }
@@ -43,9 +48,6 @@ export default function Dashboard() {
 
     if (user) fetchSets();
   }, [user]);
-
-  if (loading) return <p>Loading...</p>;
-  if (!user) return null;
 
   const handleDelete = async (setId) => {
     await api.delete(`/sets/${setId}`);
@@ -114,27 +116,54 @@ export default function Dashboard() {
         </div>
       </header>
 
-      <div className="sets">
-        {sets.length > 0 ? (
-          filteredSets.length > 0 ? (
-            filteredSets.map((set) => createSet(set))
+      <div className="dashboard-content">
+        <div className="sets">
+          {sets.length > 0 ? (
+            filteredSets.length > 0 ? (
+              filteredSets.map((set) => createSet(set))
+            ) : (
+              <div className="empty">
+                <div className="empty-emoji">❓</div>
+                <h2>No sets found</h2>
+                <p>Try a different search or toggle set description search.</p>
+              </div>
+            )
           ) : (
             <div className="empty">
-              <div className="empty-emoji">❓</div>
-              <h2>No sets found</h2>
-              <p>Try a different search or toggle set description search.</p>
+              <div className="empty-emoji">📚</div>
+              <h2>You have no sets</h2>
+              <p>Create your first flashcard set to get started!</p>
+              <Link to="/edit-set" className="create-btn-large">
+                + Create Your First Set
+              </Link>
             </div>
-          )
-        ) : (
-          <div className="empty">
-            <div className="empty-emoji">📚</div>
-            <h2>You have no sets</h2>
-            <p>Create your first flashcard set to get started!</p>
-            <Link to="/edit-set" className="create-btn-large">
-              + Create Your First Set
-            </Link>
+          )}
+        </div>
+
+        <div className="analytics">
+          <h2>Analytics</h2>
+
+          <div className="analytics-item">
+            <span className="analytics-label">Total Sets</span>
+            <span className="analytics-value">
+              {analytics?.total_sets ?? sets.length}
+            </span>
           </div>
-        )}
+
+          <div className="analytics-item">
+            <span className="analytics-label">Quizzes Today</span>
+            <span className="analytics-value">
+              {analytics?.quizzes_today ?? 0}
+            </span>
+          </div>
+
+          <div className="analytics-item">
+            <span className="analytics-label">Daily Quiz Streak</span>
+            <span className="analytics-value">
+              {analytics?.quiz_streak ?? 0}
+            </span>
+          </div>
+        </div>
       </div>
     </div>
   );

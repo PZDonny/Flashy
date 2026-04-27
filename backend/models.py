@@ -28,6 +28,7 @@ class Flashcard(db.Model):
 
 class Quiz(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     set_id = db.Column(db.Integer, db.ForeignKey('flashcard_set.id'), nullable=False)
     score = db.Column(db.Integer, nullable=False)
     total_questions = db.Column(db.Integer, nullable=False)

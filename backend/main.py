@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from routes.auth_routes import auth_bp
 from routes.flashcard_routes import flashcard_bp
 from routes.quiz_routes import quiz_bp
+from routes.misc_routes import misc_bp
 
 import extensions
 import redis_client
@@ -37,6 +38,7 @@ def create_app():
     app.register_blueprint(auth_bp, url_prefix='/api')
     app.register_blueprint(flashcard_bp, url_prefix='/api')
     app.register_blueprint(quiz_bp, url_prefix='/api')
+    app.register_blueprint(misc_bp, url_prefix='/api')
     
     return app
 
