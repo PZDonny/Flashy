@@ -60,7 +60,7 @@ body {
   box-shadow: 0px 2px 7px #ccc;
 }
 
-.user-section {
+.user-container {
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -68,12 +68,12 @@ body {
   padding-left: 1.5rem;
 }
 
-.username {
+.user-container .username {
   font-weight: 600;
   color: #555;
 }
 
-.logout-btn {
+.user-container .logout-btn {
   background: none;
   border: 1px solid #ff4d4d;
   color: #ff4d4d;
@@ -83,7 +83,7 @@ body {
   transition: all 0.2s;
 }
 
-.logout-btn:hover {
+.user-container .logout-btn:hover {
   background-color: #ff4d4d;
   color: white;
 }

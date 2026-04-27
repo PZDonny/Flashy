@@ -19,7 +19,8 @@ export default function Navbar() {
               <Link to='/dashboard' className='set-btn'>
                 My Sets
               </Link>
-              <div className='user-section'>
+
+              <div className='user-container'>
                 <span className='username'>{user.username}</span>
                 <Link to='/'>
                   <button className='logout-btn' onClick={api.logout}>
