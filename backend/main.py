@@ -37,7 +37,7 @@ def create_app():
     app.register_blueprint(auth_bp, url_prefix='/api')
     app.register_blueprint(flashcard_bp, url_prefix='/api')
     app.register_blueprint(quiz_bp, url_prefix='/api')
-            
+    
     return app
 
 if __name__ == '__main__':

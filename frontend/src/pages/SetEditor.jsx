@@ -2,12 +2,10 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import "../styles/SetEditor.css";
 import { api } from "../api";
-import SliderButton from "../components/SliderButton";
+
+import EditCard from "../components/EditCard";
 
 export default function SetEditor() {
-  function getImageURL(cardId) {
-    return `http://localhost:5000/api/flashcards/${cardId}/image`;
-  }
   const navigate = useNavigate();
 
   /*if there's a set id passed in query params, then the set is being edited, not created */
@@ -22,6 +20,7 @@ export default function SetEditor() {
       definition: "",
       isExact: false,
       image: null,
+      error: null,
     },
   ]);
 
@@ -66,11 +65,12 @@ export default function SetEditor() {
         definition: "",
         isExact: false,
         image: null,
+        error: null,
       },
     ]);
   };
 
-  const removeCardRow = (cardId) => {
+  const handleDelete = (cardId) => {
     if (cards.length <= 1) return;
     setCards((prev) => prev.filter((card) => card.id !== cardId));
   };
@@ -78,7 +78,7 @@ export default function SetEditor() {
   const handleCardChange = (cardId, field, value) => {
     setCards((prev) =>
       prev.map((card) =>
-        card.id === cardId ? { ...card, [field]: value } : card
+        card.id === cardId ? { ...card, error: null, [field]: value} : card
       )
     );
   };
@@ -97,9 +97,33 @@ export default function SetEditor() {
     );
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  function applyCardErrors(cards, errors) {
+    return cards.map((card) => {
+      const c = errors.find((e) => e.cardId == card.id);
 
+      return c ? { ...card, error: c.message } : card;
+    });
+  }
+
+  function handleCardErrors(err) {
+    const errorData = err?.data;
+
+    if (!errorData?.errors) {
+      return [
+        {
+          message: err.message || "Something went wrong",
+          cardId: null,
+        },
+      ];
+    }
+
+    return errorData.errors.map((e) => ({
+      message: e.msg,
+      cardId: e.card_id,
+    }));
+  }
+
+  function createFormData() {
     const formData = new FormData();
     formData.append("title", title);
     formData.append("description", description);
@@ -115,20 +139,43 @@ export default function SetEditor() {
     formData.append("cards", JSON.stringify(newCards));
 
     cards.forEach((card) => {
-      if (card.image) {
-        if (card.image?.image) {
-          formData.append(`image_${card.id}`, card.image.image);
-        }
+      if (card.image?.image) {
+        formData.append(`image_${card.id}`, card.image.image);
       }
     });
+    return formData;
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const formData = createFormData();
 
     try {
       const func = isEditMode ? api.putFormData : api.postFormData;
-      await func(`/sets${isEditMode ? `/${setId}` : ""}`, formData);
-
-      navigate("/dashboard");
+      await func(`/sets${isEditMode ? `/${setId}` : ''}`, formData);
+      navigate(isEditMode ? `/sets/${setId}` : "/dashboard");
     } catch (err) {
-      console.error("Failed to save set", err);
+      const parsedErrors = handleCardErrors(err);
+
+      setCards((prev) => {
+        const updated = applyCardErrors(prev, parsedErrors);
+
+        //scroll to 1st
+        const firstError = parsedErrors[0];
+        if (firstError?.cardId) {
+          setTimeout(() => {
+            const el = document.getElementById(`card-${firstError.cardId}`);
+            if (el) {
+              el.scrollIntoView({
+                behavior: "smooth",
+                block: "center",
+              });
+            }
+          }, 0);
+        }
+
+        return updated;
+      });
     }
   };
 
@@ -139,7 +186,10 @@ export default function SetEditor() {
           {isEditMode ? "Edit flashcard set" : "Create a new flashcard set"}
         </h2>
         <div className="create-set-actions">
-          <Link to= {isEditMode ? `/sets/${setId}` : "/dashboard"} className="btn cancel-btn">
+          <Link
+            to={isEditMode ? `/sets/${setId}` : "/dashboard"}
+            className="btn cancel-btn"
+          >
             Cancel
           </Link>
           <button type="submit" form="set-form" className="btn save-btn">
@@ -165,115 +215,15 @@ export default function SetEditor() {
           />
         </div>
 
-        <div className="cards-list-creation">
+        <div className="set-cards">
           {cards.map((card, index) => (
-            <div key={card.id} className="card-input-row">
-              <div className="card-row-header">
-                <span className="card-number">{index + 1}</span>
-                <button
-                  type="button"
-                  className="delete-row-btn"
-                  onClick={() => removeCardRow(card.id)}
-                  title="Delete card"
-                >
-                  &times;
-                </button>
-              </div>
-              <div className="card-row-inputs">
-                <div className="input-field image-input">
-                  <label>IMAGE</label>
-
-                  {card.image?.image && (
-                    <div className="image-container">
-                      <img
-                        src={URL.createObjectURL(card.image.image)}
-                        alt={card.term}
-                        className="image-preview"
-                      />
-
-                      <button
-                        type="button"
-                        className="remove-image-btn"
-                        onClick={() => handleRemoveImage(card.id)}
-                      >
-                        ×
-                      </button>
-                    </div>
-                  )}
-
-                  {card.image?.exists &&
-                    !card.image?.image &&
-                    !card.imageDeleted && (
-                      <div className="image-container">
-                        <img
-                          src={getImageURL(card.id)}
-                          alt={card.term}
-                          className="image-preview"
-                        />
-
-                        <button
-                          type="button"
-                          className="remove-image-btn"
-                          onClick={() => handleRemoveImage(card.id)}
-                        >
-                          ×
-                        </button>
-                      </div>
-                    )}
-
-                  <input
-                    id={`file-${card.id}`}
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (!file) return; //Cancelled file selection
-
-                      handleCardChange(card.id, "image", {
-                        image: file,
-                        exists: false,
-                      });
-                    }}
-                    hidden
-                  />
-
-                  <label htmlFor={`file-${card.id}`} className="file-btn">
-                    Choose Image
-                  </label>
-                </div>
-                <div className="input-field">
-                  <input
-                    placeholder="Term"
-                    value={card.term}
-                    onChange={(e) =>
-                      handleCardChange(card.id, "term", e.target.value)
-                    }
-                    required
-                  />
-                  <label>TERM</label>
-                </div>
-                <div className="input-field">
-                  <input
-                    placeholder="Definition"
-                    value={card.definition}
-                    onChange={(e) =>
-                      handleCardChange(card.id, "definition", e.target.value)
-                    }
-                    required
-                  />
-                  <label>DEFINITION</label>
-                </div>
-                <div className="input-field exact-toggle-input">
-                  <label>EXACT</label>
-                  <SliderButton
-                    initial={card.isExact || false}
-                    toggleListener={(value) =>
-                      handleCardChange(card.id, "isExact", value)
-                    }
-                  ></SliderButton>
-                </div>
-              </div>
-            </div>
+            <EditCard
+              card={card}
+              index={index}
+              handleDelete={handleDelete}
+              handleRemoveImage={handleRemoveImage}
+              handleCardChange={handleCardChange}
+            />
           ))}
         </div>
 

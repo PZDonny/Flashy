@@ -110,15 +110,25 @@ export const api = {
 
 async function handleResponse(res) {
   if (!res.ok) {
+    let errorData = null;
+
+    try {
+      errorData = await res.json();
+    } catch {}
+
     if (res.status === 401) {
       localStorage.removeItem("token");
       api.logout();
     }
-    const error = await res.json().catch(() => {});
-    throw Error(error.msg);
+
+    const error = new Error(errorData?.msg || "Request failed");
+
+    error.status = res.status;
+    error.data = errorData;
+
+    throw error;
   }
 
   if (res.status === 204) return null;
-
   return res.json();
 }

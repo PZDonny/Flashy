@@ -83,21 +83,39 @@
 }
 
 .card-input-row {
-  background: white;
-  border-radius: 8px;
+  background-color: white;
+  border-radius: 10px;
   padding: 1.5rem;
   margin-bottom: 2rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  border: 1px solid #eee;
+  border: 1px solid #e5e7eb;
+}
+
+.card-input-row.error {
+  border-left: 4px solid #ff4d4f;
+  background-color: #fff5f5;
+}
+
+.card-input-row.error .card-error{
+  color: #d32f2f;
+  background-color: #fdecea;
+  border: 1px solid #f5c2c2;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 10px 10px;
 }
 
 .card-row-header {
   display: flex;
+  align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid #f0f0f0;
   padding-bottom: 0.5rem;
   margin-bottom: 1.5rem;
 }
+
+
 
 .card-number {
   font-weight: 800;
@@ -135,6 +153,7 @@
   padding: 0.5rem 0;
   font-size: 1rem;
   outline: none;
+  background-color: whitesmoke;
 }
 
 .input-field label {
@@ -147,6 +166,7 @@
 .input-field input:focus {
   border-color: #007bff;
 }
+
 
 .input-field.exact-toggle-input {
   flex-direction: column;

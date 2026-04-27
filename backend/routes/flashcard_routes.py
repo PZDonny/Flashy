@@ -10,7 +10,6 @@ from extensions import db
 
 flashcard_bp = Blueprint('flashcard', __name__)
 
-
 @flashcard_bp.route('/sets', methods=['GET', 'POST'])
 @jwt_required()
 def flashcard_sets():
@@ -20,7 +19,13 @@ def flashcard_sets():
         description = request.form.get("description")
         cards_json = request.form.get("cards")
         cards = json.loads(cards_json)
-        image_bytes_dict = image_helper.get_image_bytes_dict(request)
+        image_bytes_dict, errors = image_helper.get_image_bytes_dict(request)
+
+        if errors:
+            return jsonify({
+                "msg": "Image validation failed",
+                "errors": errors 
+            }), 400
 
         return service.create_set(current_user, title, description, cards, image_bytes_dict)
     else:
@@ -82,17 +87,24 @@ def flashcard_set(id):
                 db.session.commit()
             return jsonify({'msg': 'Set successfully deleted'}), 204
         except :
-            
-            return jsonify({'msg: Failed to delete set'}), 400
+            return jsonify({'msg': 'Failed to delete set'}), 400
         
     elif request.method == 'PUT': #Set Edited
         title = request.form.get("title", flashcard_set.title)
         description = request.form.get("description", flashcard_set.description)
         cards_data = request.form.get("cards", [])
         cards = json.loads(cards_data) if cards_data else []
-        image_bytes_dict = image_helper.get_image_bytes_dict(request)
+        image_bytes_dict, errors = image_helper.get_image_bytes_dict(request)
 
-        return service.update_set(flashcard_set, title, description, cards, image_bytes_dict)
+        current_app.logger.info(request.files)
+
+        if errors:
+            return jsonify({
+                "msg": "Image validation failed",
+                "errors": errors 
+            }), 400
+
+        return service.update_set(flashcard_set, title, description, cards, image_bytes_dict)        
 
     elif request.method == 'PATCH': #Starring set
         try:
@@ -102,7 +114,7 @@ def flashcard_set(id):
             db.session.commit()
             return jsonify({'msg': f'Set starred set to {is_starred}'}), 200
         except:
-            return jsonify({'msg: Failed to update set starred'}), 400
+            return jsonify({'msg': 'Failed to update set starred'}), 400
         
     
 
@@ -112,14 +124,15 @@ def get_image(id):
     if not card or not card.image:
         return jsonify({'msg': 'Image not found'}), 404
     
-    etag = hashlib.md5(card.image).hexdigest() #image hash
+    etag = hashlib.md5(card.image).hexdigest() #image's hash
     
-    if request.headers.get("If-None-Match") == etag: #client/user already has image & image didn't change
+    #client already has image & image didn't change
+    if request.headers.get("If-None-Match") == etag: 
         return '', 304
 
-    response:Response = Response(card.image)
-    response.mimeType = 'image/jpeg'
-    response.headers['Cache-Control'] = 'public, max-age=86400, immutable' #24hrs
+    response = Response(card.image)
+    response.mimetype = 'image/jpeg'
+    response.headers['Cache-Control'] = 'no-cache'
     response.headers['ETag'] = etag
 
     return response

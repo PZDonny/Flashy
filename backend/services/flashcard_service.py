@@ -34,13 +34,13 @@ def update_set(flashcard_set:FlashcardSet, title, description, cards, image_byte
     flashcard_set.description = description
 
     existing_cards = Flashcard.query.filter_by(set_id=flashcard_set.id).all()
-    existing_cards_dict = {card.id: card for card in existing_cards}
+    existing_cards_dict = {str(card.id): card for card in existing_cards}
 
     for card_item in cards:
-        card_id = card_item.get('id')
+        card_id = str(card_item.get('id'))
 
         if card_id in existing_cards_dict: #Update Card
-            card = existing_cards_dict.pop(card_id) 
+            card:Flashcard = existing_cards_dict.pop(card_id) 
             card.term = card_item.get('term', card.term)
             card.definition = card_item.get('definition', card.definition)
             card.is_exact = card_item.get('isExact', card.is_exact)
@@ -48,10 +48,10 @@ def update_set(flashcard_set:FlashcardSet, title, description, cards, image_byte
             if card_item.get('imageDeleted'):
                 card.image = None
             else:
-                stringID = str(card_id)
-                if stringID in image_bytes_dict:
-                    current_app.logger.info(f'Updating image for card {card_id}: {image_bytes_dict.get(stringID)}')
-                    card.image = image_bytes_dict.get(stringID, card.image)
+                
+                if card_id in image_bytes_dict:
+                    current_app.logger.info(f'Updating image for card {card_id}')
+                    card.image = image_bytes_dict.get(card_id)
         else: #New Card
             new_card = Flashcard(
                 set_id=flashcard_set.id,
@@ -66,5 +66,8 @@ def update_set(flashcard_set:FlashcardSet, title, description, cards, image_byte
     for card_to_delete in existing_cards_dict.values():
         db.session.delete(card_to_delete)
 
+    current_app.logger.info(
+    {c.id: len(c.image) if c.image else None for c in existing_cards}
+)
     db.session.commit()
     return jsonify({'msg': 'Set updated successfully'}), 200
