@@ -75,7 +75,7 @@ function QuizHistory() {
     <div className="quiz-history-page">
       <BackButton text="Return to Set" to={`/sets/${setId}`} />
       <div className="quiz-history-header">
-        <h2>Quiz History</h2>
+        <h2>Last 10 Quizzes</h2>
 
         <div className="quiz-history-stats">
           <div className="quiz-history-sub">
@@ -96,12 +96,15 @@ function QuizHistory() {
         <p>No quiz history found for this set.</p>
       ) : (
         <div className="quiz-history-container">
-          {quizHistories.map((quiz) => (
+          {quizHistories.map((quiz, index) => (
             <div
               key={quiz.id}
               className="quiz-card"
               onClick={() => openQuiz(quiz.id)}
             >
+              <span className="quiz-index">
+                Quiz #{quizHistories.length - index}
+              </span>
               <div className="quiz-score-info">
                 <div className="quiz-score">
                   Score: {quiz.score}/{quiz.total_questions}

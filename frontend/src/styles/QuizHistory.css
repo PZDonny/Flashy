@@ -34,6 +34,7 @@
 .quiz-history-stats {
   display: flex;
   gap: 12px;
+  flex-wrap: wrap;
 }
 
 .quiz-history-sub {
@@ -56,8 +57,8 @@
 }
 
 .quiz-history-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  display: flex;
+  flex-direction: column;
   gap: 16px;
 }
 
@@ -74,6 +75,7 @@
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   overflow: hidden;
   animation: fadeInUp 0.35s ease both;
+  padding-left: 28px;
 }
 
 .quiz-card::before {
@@ -92,6 +94,16 @@
   transform: translateY(-6px) scale(1.01);
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.12);
   border-color: rgba(99, 102, 241, 0.25);
+}
+
+.quiz-index {
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  background: rgba(99, 102, 241, 0.08);
+  box-shadow: 0 4px 10px rgba(99, 102, 241, 0.25);
 }
 
 .quiz-score-info {
@@ -173,7 +185,7 @@
   border-bottom: 1px solid whitesmoke;
   margin-bottom: 8px;
 }
-.results-stats{
+.results-stats {
   display: flex;
   gap: 16px;
   align-items: center;
@@ -358,11 +370,72 @@
 
 @media (max-width: 700px) {
   .quiz-history-header {
-    grid-template-columns: 1fr;
-    text-align: left;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .quiz-history-stats {
+    width: 100%;
+    flex-direction: column;
   }
 
   .quiz-history-sub {
     width: 100%;
+    min-width: unset;
+  }
+
+  .quiz-history-page {
+    padding: 16px;
+  }
+
+  .quiz-history-header {
+    padding: 1rem;
+  }
+
+  .quiz-card {
+    padding: 14px;
+    padding-left: 20px;
+  }
+
+  .quiz-score-info .quiz-score {
+    font-size: 16px;
+  }
+  .modal-overlay {
+    padding: 12px;
+    padding-top: 40px;
+    align-items: stretch;
+  }
+
+  .modal-content {
+    width: 100%;
+    height: 90vh;
+    max-height: 90vh;
+    border-radius: 12px;
+  }
+
+  .results-stats {
+    font-size: 22px;
+  }
+
+  .results-bar {
+    width: 90%;
+  }
+  .quiz-score-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .quiz-history-header h2 {
+    font-size: 1.3rem;
+  }
+
+  .quiz-history-stats {
+    flex-direction: column;
+  }
+
+  .quiz-history-sub {
+    width: 90%;
+    margin: 0 auto;
   }
 }
