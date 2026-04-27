@@ -14,9 +14,9 @@ import redis_client
 
 load_dotenv()
 
-DB_URI = 'postgresql://user:password@localhost:5435/flashy'
-SECRET_KEY = os.getenv('JWT_SECRET_KEY')
-REDIS_PORT = int(os.getenv('REDIS_PORT', 6379))
+SECRET_KEY = 'my_very_long_super_duper_secret_key'
+DB_URI = f'postgresql://user:password@localhost:5435/flashy'
+REDIS_PORT = 6379
 
 def create_app():
     app = Flask(__name__)
